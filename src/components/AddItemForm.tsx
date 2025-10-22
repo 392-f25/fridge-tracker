@@ -165,6 +165,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           </label>
           <input
             type="date"
+            lang="en-US"
             value={formData.purchaseDate}
             onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
             style={{
@@ -175,6 +176,13 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               fontSize: '14px',
             }}
           />
+          {formData.purchaseDate && (
+            <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+              {new Date(formData.purchaseDate).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric'
+              })}
+            </div>
+          )}
         </div>
 
         <div>
@@ -183,6 +191,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           </label>
           <input
             type="date"
+            lang="en-US"
             value={formData.expirationDate}
             onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
             style={{
@@ -193,6 +202,13 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               fontSize: '14px',
             }}
           />
+          {formData.expirationDate && (
+            <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+              {new Date(formData.expirationDate).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric'
+              })}
+            </div>
+          )}
         </div>
       </div>
 
