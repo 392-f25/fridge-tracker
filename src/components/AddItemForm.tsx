@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import enUS from 'date-fns/locale/en-US';
+import 'react-datepicker/dist/react-datepicker.css';
 import type { FridgeItem } from '../types';
 
 interface AddItemFormProps {
@@ -10,13 +13,15 @@ const units = ['pcs', 'kg', 'g', 'L', 'mL', 'lb', 'oz'];
 
 export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   const [isOpen, setIsOpen] = useState(false);
+  registerLocale('en-US', enUS);
+
   const [formData, setFormData] = useState({
     name: '',
     category: categories[0],
     quantity: 1,
     unit: units[0],
-    purchaseDate: new Date().toISOString().split('T')[0],
-    expirationDate: '',
+    purchaseDate: new Date(),
+    expirationDate: null as Date | null,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,7 +34,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     onAdd({
       ...formData,
       purchaseDate: new Date(formData.purchaseDate),
-      expirationDate: new Date(formData.expirationDate),
+      expirationDate: new Date(formData.expirationDate as Date),
     });
 
     setFormData({
@@ -37,8 +42,8 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       category: categories[0],
       quantity: 1,
       unit: units[0],
-      purchaseDate: new Date().toISOString().split('T')[0],
-      expirationDate: '',
+      purchaseDate: new Date(),
+      expirationDate: null,
     });
     setIsOpen(false);
   };
@@ -163,52 +168,46 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
             Purchase Date
           </label>
-          <input
-            type="date"
-            lang="en-US"
-            value={formData.purchaseDate}
-            onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '8px',
-              borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              fontSize: '14px',
-            }}
-          />
-          {formData.purchaseDate && (
-            <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
-              {new Date(formData.purchaseDate).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'short', day: 'numeric'
-              })}
-            </div>
-          )}
+          <div>
+            <DatePicker
+              selected={formData.purchaseDate}
+              onChange={(date: Date) => setFormData({ ...formData, purchaseDate: date })}
+              dateFormat="MMM d, yyyy"
+              locale="en-US"
+              className="input-date"
+              wrapperClassName="date-wrapper"
+            />
+            {formData.purchaseDate && (
+              <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+                {new Date(formData.purchaseDate).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'short', day: 'numeric'
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         <div>
           <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
             Expiration Date *
           </label>
-          <input
-            type="date"
-            lang="en-US"
-            value={formData.expirationDate}
-            onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '8px',
-              borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              fontSize: '14px',
-            }}
-          />
-          {formData.expirationDate && (
-            <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
-              {new Date(formData.expirationDate).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'short', day: 'numeric'
-              })}
-            </div>
-          )}
+          <div>
+            <DatePicker
+              selected={formData.expirationDate}
+              onChange={(date: Date | null) => setFormData({ ...formData, expirationDate: date })}
+              dateFormat="MMM d, yyyy"
+              locale="en-US"
+              className="input-date"
+              wrapperClassName="date-wrapper"
+            />
+            {formData.expirationDate && (
+              <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+                {new Date(formData.expirationDate as Date).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'short', day: 'numeric'
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

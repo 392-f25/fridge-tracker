@@ -5,7 +5,7 @@ import { AddItemForm } from './components/AddItemForm';
 import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
 import { RecipeList } from './components/RecipeList';
-import { getMockRecipes, findMatchingRecipes } from './utils/recipeUtils';
+import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
 import { getExpirationWarnings } from './utils/dateUtils';
 
 const STORAGE_KEY = 'fridge_items_v1';
@@ -53,7 +53,7 @@ function App() {
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
 
   const recipes = useMemo(() => getMockRecipes(), []);
-  const suggestedRecipes = useMemo(() => findMatchingRecipes(items, recipes), [items, recipes]);
+  const suggestedRecipes = useMemo(() => findMatchingRecipesRelaxed(items, recipes), [items, recipes]);
 
   return (
     <div className="app-container" style={{ maxWidth: 900, margin: '32px auto', padding: '0 16px' }}>
@@ -85,7 +85,20 @@ function App() {
           <aside>
             <div style={{ marginBottom: 20 }}>
               <h3 style={{ margin: '0 0 8px 0' }}>Recipe Suggestions</h3>
-              <RecipeList recipes={suggestedRecipes} />
+              {suggestedRecipes.length === 0 ? (
+                <div style={{ padding: 12, background: '#fff7ed', borderRadius: 8, color: '#92400e' }}>
+                  No recipe suggestions yet. Try adding more ingredients to your fridge to get suggestions.
+                </div>
+              ) : (
+                <>
+                  {suggestedRecipes.length <= 2 && (
+                    <div style={{ marginBottom: 8, color: '#6b7280', fontSize: 13 }}>
+                      Showing partial matches based on your current ingredients.
+                    </div>
+                  )}
+                  <RecipeList recipes={suggestedRecipes} />
+                </>
+              )}
             </div>
 
             <div style={{ padding: 16, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8 }}>

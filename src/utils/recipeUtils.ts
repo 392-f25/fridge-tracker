@@ -2,7 +2,7 @@ import type { FridgeItem, Recipe } from '../types';
 
 export const findMatchingRecipes = (items: FridgeItem[], recipes: Recipe[]): Recipe[] => {
   const availableIngredients = items.map(item => item.name.toLowerCase());
-  
+
   return recipes
     .map(recipe => {
       const matchedIngredients = recipe.ingredients.filter(ingredient =>
@@ -11,9 +11,9 @@ export const findMatchingRecipes = (items: FridgeItem[], recipes: Recipe[]): Rec
           available.includes(ingredient.toLowerCase())
         )
       );
-      
+
       const matchPercentage = matchedIngredients.length / recipe.ingredients.length;
-      
+
       return {
         recipe,
         matchPercentage,
@@ -23,6 +23,33 @@ export const findMatchingRecipes = (items: FridgeItem[], recipes: Recipe[]): Rec
     .filter(result => result.matchPercentage >= 0.5) // At least 50% ingredients match
     .sort((a, b) => b.matchPercentage - a.matchPercentage)
     .map(result => result.recipe);
+};
+
+// Relaxed matcher used by the UI to show partial matches (returns up to top 5 results)
+export const findMatchingRecipesRelaxed = (items: FridgeItem[], recipes: Recipe[]): Recipe[] => {
+  const availableIngredients = items.map(item => item.name.toLowerCase());
+
+  const results = recipes
+    .map(recipe => {
+      const matchedIngredients = recipe.ingredients.filter(ingredient =>
+        availableIngredients.some(available =>
+          ingredient.toLowerCase().includes(available) ||
+          available.includes(ingredient.toLowerCase())
+        )
+      );
+
+      const matchPercentage = matchedIngredients.length / recipe.ingredients.length;
+
+      return {
+        recipe,
+        matchPercentage,
+        matchedCount: matchedIngredients.length,
+      };
+    })
+    .filter(result => result.matchedCount > 0)
+    .sort((a, b) => b.matchPercentage - a.matchPercentage || b.matchedCount - a.matchedCount);
+
+  return results.slice(0, 5).map(r => r.recipe);
 };
 
 export const getMockRecipes = (): Recipe[] => {
