@@ -10,12 +10,15 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "prep": "npm run build && npm run dev",
+    "deploy": "npm run build && firebase deploy"
   },
   "dependencies": {
     "date-fns": "^2.30.0",
+    "firebase": "^12.4.0",
     "react": "^19.1.1",
-    "react-datepicker": "^4.25.0",
+    "react-datepicker": "^8.8.0",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {

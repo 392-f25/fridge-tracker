@@ -171,7 +171,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           <div>
             <DatePicker
               selected={formData.purchaseDate}
-              onChange={(date: Date) => setFormData({ ...formData, purchaseDate: date })}
+              onChange={(date: Date | null) => setFormData({ ...formData, purchaseDate: date || new Date() })}
               dateFormat="MMM d, yyyy"
               locale="en-US"
               className="input-date"

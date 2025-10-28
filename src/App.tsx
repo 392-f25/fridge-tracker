@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
-import type { FridgeItem, Recipe } from './types';
+import type { FridgeItem } from './types';
 import { AddItemForm } from './components/AddItemForm';
 import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
