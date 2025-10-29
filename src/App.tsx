@@ -101,7 +101,7 @@ function App() {
           fontSize: '1.1rem',
           fontWeight: 500
         }}>
-          Keep your fridge fresh & organized
+          Keep your groceries fresh & organized
         </div>
         <div style={{
           marginTop: 8,
