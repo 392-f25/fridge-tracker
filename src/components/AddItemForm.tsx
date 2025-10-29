@@ -230,6 +230,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               dateFormat="MMM d, yyyy"
               locale="en-US"
               className="input-date"
+              portalId="react-datepicker-portal"
               wrapperClassName="date-wrapper"
             />
             {formData.purchaseDate && (
@@ -264,6 +265,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               dateFormat="MMM d, yyyy"
               locale="en-US"
               className="input-date"
+              portalId="react-datepicker-portal"
               wrapperClassName="date-wrapper"
             />
             {formData.expirationDate && (
