@@ -54,20 +54,24 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         onClick={() => setIsOpen(true)}
         style={{
           width: '100%',
-          padding: '16px',
-          backgroundColor: '#3b82f6',
+          padding: '20px',
+          background: 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--fresh-mint) 100%)',
           color: 'white',
           border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: '600',
+          borderRadius: '16px',
+          fontSize: '18px',
+          fontWeight: '700',
           cursor: 'pointer',
-          marginBottom: '20px',
+          marginBottom: '32px',
+          boxShadow: '0 4px 16px rgba(6, 182, 212, 0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px'
         }}
-        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
       >
-        + Add New Item
+        <span style={{ fontSize: '24px' }}>➕</span>
+        Add New Item
       </button>
     );
   }
@@ -76,17 +80,36 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     <form
       onSubmit={handleSubmit}
       style={{
-        backgroundColor: '#f9fafb',
-        padding: '20px',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        border: '1px solid #e5e7eb',
+        background: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
+        padding: '28px',
+        borderRadius: '20px',
+        marginBottom: '32px',
+        border: '2px solid var(--border-light)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
       }}
     >
-      <h3 style={{ marginTop: 0, marginBottom: '16px' }}>Add New Item</h3>
+      <h3 style={{
+        marginTop: 0,
+        marginBottom: '24px',
+        fontSize: '22px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        color: 'var(--text-primary)'
+      }}>
+        <span style={{ fontSize: '28px' }}>📝</span>
+        Add New Item
+      </h3>
       
-      <div style={{ marginBottom: '12px' }}>
-        <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
+      <div style={{ marginBottom: '18px' }}>
+        <label style={{
+          display: 'block',
+          marginBottom: '8px',
+          fontSize: '14px',
+          fontWeight: '600',
+          color: 'var(--text-primary)'
+        }}>
           Item Name *
         </label>
         <input
@@ -95,18 +118,27 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           style={{
             width: '100%',
-            padding: '8px',
-            borderRadius: '4px',
-            border: '1px solid #d1d5db',
-            fontSize: '14px',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            border: '2px solid var(--border-light)',
+            fontSize: '15px',
+            background: 'var(--card-bg)',
+            color: 'var(--text-primary)',
+            fontWeight: 500
           }}
           placeholder="e.g., Milk, Apples, Chicken"
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '18px' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: 'var(--text-primary)'
+          }}>
             Category
           </label>
           <select
@@ -114,10 +146,14 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
             style={{
               width: '100%',
-              padding: '8px',
-              borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              fontSize: '14px',
+              padding: '12px 16px',
+              borderRadius: '10px',
+              border: '2px solid var(--border-light)',
+              fontSize: '15px',
+              background: 'var(--card-bg)',
+              color: 'var(--text-primary)',
+              fontWeight: 500,
+              cursor: 'pointer'
             }}
           >
             {categories.map(cat => (
@@ -127,7 +163,13 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: 'var(--text-primary)'
+          }}>
             Quantity & Unit
           </label>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -139,20 +181,27 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               onChange={(e) => setFormData({ ...formData, quantity: parseFloat(e.target.value) })}
               style={{
                 flex: 1,
-                padding: '8px',
-                borderRadius: '4px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: '2px solid var(--border-light)',
+                fontSize: '15px',
+                background: 'var(--card-bg)',
+                color: 'var(--text-primary)',
+                fontWeight: 500
               }}
             />
             <select
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
               style={{
-                padding: '8px',
-                borderRadius: '4px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: '2px solid var(--border-light)',
+                fontSize: '15px',
+                background: 'var(--card-bg)',
+                color: 'var(--text-primary)',
+                fontWeight: 500,
+                cursor: 'pointer'
               }}
             >
               {units.map(unit => (
@@ -163,9 +212,15 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: 'var(--text-primary)'
+          }}>
             Purchase Date
           </label>
           <div>
@@ -178,7 +233,12 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               wrapperClassName="date-wrapper"
             />
             {formData.purchaseDate && (
-              <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+              <div style={{
+                marginTop: 8,
+                fontSize: 12,
+                color: 'var(--text-secondary)',
+                fontWeight: 500
+              }}>
                 {new Date(formData.purchaseDate).toLocaleDateString('en-US', {
                   year: 'numeric', month: 'short', day: 'numeric'
                 })}
@@ -188,7 +248,13 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '500' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            color: 'var(--text-primary)'
+          }}>
             Expiration Date *
           </label>
           <div>
@@ -201,7 +267,12 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               wrapperClassName="date-wrapper"
             />
             {formData.expirationDate && (
-              <div style={{ marginTop: 6, fontSize: 12, color: '#6b7280' }}>
+              <div style={{
+                marginTop: 8,
+                fontSize: 12,
+                color: 'var(--text-secondary)',
+                fontWeight: 500
+              }}>
                 {new Date(formData.expirationDate as Date).toLocaleDateString('en-US', {
                   year: 'numeric', month: 'short', day: 'numeric'
                 })}
@@ -211,41 +282,38 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '12px' }}>
         <button
           type="submit"
           style={{
             flex: 1,
-            padding: '10px',
-            backgroundColor: '#10b981',
+            padding: '14px',
+            background: 'linear-gradient(135deg, var(--fresh-mint) 0%, var(--fresh-green) 100%)',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
-            fontSize: '14px',
-            fontWeight: '600',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: '700',
             cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
           }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#10b981')}
         >
-          Add Item
+          ✅ Add Item
         </button>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
           style={{
             flex: 1,
-            padding: '10px',
-            backgroundColor: '#6b7280',
+            padding: '14px',
+            background: 'var(--text-muted)',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
-            fontSize: '14px',
-            fontWeight: '600',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: '700',
             cursor: 'pointer',
           }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#4b5563')}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#6b7280')}
         >
           Cancel
         </button>

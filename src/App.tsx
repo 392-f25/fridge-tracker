@@ -57,10 +57,43 @@ function App() {
   const suggestedRecipes = useMemo(() => findMatchingRecipesRelaxed(items, recipes), [items, recipes]);
 
   return (
-    <div className="app-container" style={{ maxWidth: 900, margin: '32px auto', padding: '0 16px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ margin: 0 }}>Fridge Tracker</h1>
-        <div style={{ color: '#6b7280' }}>Manage your fridge — local only</div>
+    <div className="app-container" style={{
+      maxWidth: 1200,
+      margin: '0 auto',
+      padding: '40px 24px',
+      minHeight: '100vh'
+    }}>
+      <header style={{
+        textAlign: 'center',
+        marginBottom: 48,
+        padding: '32px 24px',
+        background: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: 24,
+        boxShadow: '0 8px 32px rgba(6, 182, 212, 0.1)',
+        border: '2px solid rgba(165, 243, 252, 0.3)'
+      }}>
+        <h1 style={{
+          margin: '0 0 12px 0',
+          fontSize: '3rem',
+          letterSpacing: '-0.03em'
+        }}>
+          What2Eat
+        </h1>
+        <div style={{
+          color: 'var(--text-secondary)',
+          fontSize: '1.1rem',
+          fontWeight: 500
+        }}>
+          Keep your fridge fresh & organized
+        </div>
+        <div style={{
+          marginTop: 8,
+          color: 'var(--text-muted)',
+          fontSize: '0.875rem'
+        }}>
+          All data stored locally on your device
+        </div>
       </header>
 
       <main>
@@ -68,33 +101,118 @@ function App() {
 
         <AddItemForm onAdd={handleAdd} />
 
-        <section style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24 }}>
+        <section style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 2fr) minmax(320px, 1fr)',
+          gap: 32,
+          alignItems: 'start'
+        }}>
           <div>
-            <h2 style={{ fontSize: 20, marginBottom: 12 }}>Items</h2>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 20,
+              padding: '0 4px'
+            }}>
+              <h2 style={{
+                fontSize: 24,
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10
+              }}>
+                <span style={{ fontSize: 28 }}>🧊</span>
+                Your Items
+                {items.length > 0 && (
+                  <span style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    background: 'linear-gradient(135deg, var(--fresh-cyan), var(--fresh-mint))',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: 20,
+                    marginLeft: 8
+                  }}>
+                    {items.length}
+                  </span>
+                )}
+              </h2>
+            </div>
+
             {items.length === 0 && (
-              <div style={{ padding: 20, background: '#f8fafc', borderRadius: 8, color: '#6b7280' }}>
-                Your fridge is empty. Add items to get started.
+              <div style={{
+                padding: 48,
+                background: 'rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 16,
+                border: '2px dashed var(--border-medium)',
+                textAlign: 'center',
+                color: 'var(--text-secondary)'
+              }}>
+                <div style={{ fontSize: 64, marginBottom: 16 }}>🥗</div>
+                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+                  Your fridge is empty
+                </div>
+                <div style={{ color: 'var(--text-muted)' }}>
+                  Add items to start tracking freshness and get recipe suggestions
+                </div>
               </div>
             )}
-            <div style={{ marginTop: 12 }}>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {items.map(item => (
                 <FridgeItemComponent key={item.id} item={item} onDelete={handleDelete} />
               ))}
             </div>
           </div>
 
-          <aside>
-            <div style={{ marginBottom: 20 }}>
-              <h3 style={{ margin: '0 0 8px 0' }}>Recipe Suggestions</h3>
+          <aside style={{ position: 'sticky', top: 24 }}>
+            <div style={{
+              marginBottom: 24,
+              background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(10px)',
+              padding: 24,
+              borderRadius: 16,
+              border: '2px solid var(--border-light)',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)'
+            }}>
+              <h3 style={{
+                margin: '0 0 16px 0',
+                fontSize: 20,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}>
+                <span style={{ fontSize: 24 }}>🍳</span>
+                Recipe Ideas
+              </h3>
+
               {suggestedRecipes.length === 0 ? (
-                <div style={{ padding: 12, background: '#fff7ed', borderRadius: 8, color: '#92400e' }}>
-                  No recipe suggestions yet. Try adding more ingredients to your fridge to get suggestions.
+                <div style={{
+                  padding: 20,
+                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                  borderRadius: 12,
+                  color: '#92400e',
+                  textAlign: 'center',
+                  fontSize: 14
+                }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>👨‍🍳</div>
+                  Add ingredients to unlock recipe suggestions
                 </div>
               ) : (
                 <>
                   {suggestedRecipes.length <= 2 && (
-                    <div style={{ marginBottom: 8, color: '#6b7280', fontSize: 13 }}>
-                      Showing partial matches based on your current ingredients.
+                    <div style={{
+                      marginBottom: 12,
+                      padding: 12,
+                      background: 'var(--card-tertiary)',
+                      borderRadius: 8,
+                      color: 'var(--text-secondary)',
+                      fontSize: 13,
+                      borderLeft: '3px solid var(--fresh-cyan)'
+                    }}>
+                      Showing partial matches based on your ingredients
                     </div>
                   )}
                   <RecipeList recipes={suggestedRecipes} />
@@ -102,13 +220,47 @@ function App() {
               )}
             </div>
 
-            <div style={{ padding: 16, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8 }}>
-              <h4 style={{ marginTop: 0 }}>Quick Actions</h4>
+            <div style={{
+              padding: 24,
+              background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid var(--border-light)',
+              borderRadius: 16,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)'
+            }}>
+              <h4 style={{
+                marginTop: 0,
+                marginBottom: 16,
+                fontSize: 16,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}>
+                <span style={{ fontSize: 20 }}>⚡</span>
+                Quick Actions
+              </h4>
               <button
-                onClick={() => setItems([])}
-                style={{ width: '100%', padding: 10, background: '#ef4444', color: 'white', border: 'none', borderRadius: 6 }}
+                onClick={() => {
+                  if (items.length > 0 && !window.confirm('Are you sure you want to clear all items?')) {
+                    return;
+                  }
+                  setItems([]);
+                }}
+                disabled={items.length === 0}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  background: items.length === 0 ? '#cbd5e1' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: items.length === 0 ? 'not-allowed' : 'pointer',
+                  opacity: items.length === 0 ? 0.5 : 1
+                }}
               >
-                Clear All Items
+                🗑️ Clear All Items
               </button>
             </div>
           </aside>

@@ -12,14 +12,16 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
     return (
       <div
         style={{
-          backgroundColor: '#f9fafb',
-          padding: '24px',
-          borderRadius: '8px',
+          background: 'linear-gradient(135deg, var(--card-secondary) 0%, var(--card-tertiary) 100%)',
+          padding: '28px',
+          borderRadius: '12px',
           textAlign: 'center',
-          color: '#6b7280',
+          color: 'var(--text-secondary)',
+          border: '2px solid var(--border-light)'
         }}
       >
-        <p style={{ margin: 0 }}>
+        <div style={{ fontSize: '48px', marginBottom: '12px' }}>🍽️</div>
+        <p style={{ margin: 0, fontWeight: 500, fontSize: '14px' }}>
           Add items to your fridge to see recipe suggestions based on your ingredients!
         </p>
       </div>
@@ -28,49 +30,77 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
 
   return (
     <div>
-      <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '16px' }}>
-        🍳 Recipe Suggestions
-      </h2>
-      <p style={{ color: '#6b7280', marginBottom: '16px' }}>
-        Based on your available ingredients, here are some recipes you can make:
-      </p>
-      
-      <div style={{ display: 'grid', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {recipes.map(recipe => (
           <div
             key={recipe.id}
             style={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              padding: '20px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              border: '2px solid var(--border-light)',
+              borderRadius: '14px',
+              padding: '18px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.2s ease'
             }}
           >
             <div style={{ marginBottom: '12px' }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '600' }}>
+              <h3 style={{
+                margin: '0 0 10px 0',
+                fontSize: '17px',
+                fontWeight: '700',
+                color: 'var(--text-primary)',
+                letterSpacing: '-0.01em'
+              }}>
                 {recipe.name}
               </h3>
-              <div style={{ display: 'flex', gap: '16px', color: '#6b7280', fontSize: '14px' }}>
-                <span>⏱️ {recipe.prepTime} minutes</span>
-                <span>👥 {recipe.servings} servings</span>
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                color: 'var(--text-secondary)',
+                fontSize: '13px',
+                fontWeight: 500
+              }}>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  ⏱️ {recipe.prepTime} min
+                </span>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  👥 {recipe.servings}
+                </span>
               </div>
             </div>
 
-            <div style={{ marginBottom: '12px' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#374151' }}>
-                Ingredients:
-              </h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{
+                fontSize: '12px',
+                fontWeight: '700',
+                marginBottom: '8px',
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                Ingredients
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {recipe.ingredients.map((ingredient, idx) => (
                   <span
                     key={idx}
                     style={{
-                      backgroundColor: '#eff6ff',
-                      color: '#1e40af',
-                      padding: '4px 12px',
-                      borderRadius: '12px',
-                      fontSize: '13px',
+                      background: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)',
+                      color: '#0e7490',
+                      padding: '4px 10px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      border: '1px solid #a5f3fc'
                     }}
                   >
                     {ingredient}
@@ -84,19 +114,21 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
                 setExpandedRecipe(expandedRecipe === recipe.id ? null : recipe.id)
               }
               style={{
-                backgroundColor: '#3b82f6',
+                background: expandedRecipe === recipe.id
+                  ? 'var(--text-muted)'
+                  : 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--cool-sky) 100%)',
                 color: 'white',
                 border: 'none',
-                borderRadius: '4px',
-                padding: '8px 16px',
+                borderRadius: '8px',
+                padding: '8px 14px',
                 cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
+                fontSize: '13px',
+                fontWeight: '700',
+                boxShadow: '0 2px 6px rgba(6, 182, 212, 0.2)',
+                transition: 'all 0.2s ease'
               }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
             >
-              {expandedRecipe === recipe.id ? 'Hide Instructions' : 'Show Instructions'}
+              {expandedRecipe === recipe.id ? '🔼 Hide Instructions' : '🔽 Show Instructions'}
             </button>
 
             {expandedRecipe === recipe.id && (
@@ -104,15 +136,31 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
                 style={{
                   marginTop: '16px',
                   paddingTop: '16px',
-                  borderTop: '1px solid #e5e7eb',
+                  borderTop: '2px solid var(--border-light)',
                 }}
               >
-                <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#374151' }}>
-                  Instructions:
-                </h4>
-                <ol style={{ margin: 0, paddingLeft: '20px', color: '#4b5563' }}>
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '10px',
+                  color: 'var(--text-secondary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  Instructions
+                </div>
+                <ol style={{
+                  margin: 0,
+                  paddingLeft: '20px',
+                  color: 'var(--text-secondary)'
+                }}>
                   {recipe.instructions.map((instruction, idx) => (
-                    <li key={idx} style={{ marginBottom: '8px', fontSize: '14px' }}>
+                    <li key={idx} style={{
+                      marginBottom: '10px',
+                      fontSize: '13px',
+                      lineHeight: '1.6',
+                      fontWeight: 500
+                    }}>
                       {instruction}
                     </li>
                   ))}
