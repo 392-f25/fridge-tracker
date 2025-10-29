@@ -7,7 +7,7 @@ import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
 import { RecipeList } from './components/RecipeList';
 import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
-import { getExpirationWarnings } from './utils/dateUtils';
+import { getExpirationWarnings, calculateDaysUntilExpiration } from './utils/dateUtils';
 
 const STORAGE_KEY = 'fridge_items_v1';
 
@@ -52,6 +52,22 @@ function App() {
   };
 
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
+
+  // Sort items by expiration date (soonest first), then alphabetically by name
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const daysA = calculateDaysUntilExpiration(a.expirationDate);
+      const daysB = calculateDaysUntilExpiration(b.expirationDate);
+      
+      // Primary sort: by days until expiration (ascending - soonest first)
+      if (daysA !== daysB) {
+        return daysA - daysB;
+      }
+      
+      // Secondary sort: alphabetically by name (case-insensitive)
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+  }, [items]);
 
   const recipes = useMemo(() => getMockRecipes(), []);
   const suggestedRecipes = useMemo(() => findMatchingRecipesRelaxed(items, recipes), [items, recipes]);
@@ -124,7 +140,7 @@ function App() {
               }}>
                 <span style={{ fontSize: 28 }}>🧊</span>
                 Your Items
-                {items.length > 0 && (
+                {sortedItems.length > 0 && (
                   <span style={{
                     fontSize: 14,
                     fontWeight: 600,
@@ -134,13 +150,13 @@ function App() {
                     borderRadius: 20,
                     marginLeft: 8
                   }}>
-                    {items.length}
+                    {sortedItems.length}
                   </span>
                 )}
               </h2>
             </div>
 
-            {items.length === 0 && (
+            {sortedItems.length === 0 && (
               <div style={{
                 padding: 48,
                 background: 'rgba(255, 255, 255, 0.6)',
@@ -161,7 +177,7 @@ function App() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {items.map(item => (
+              {sortedItems.map(item => (
                 <FridgeItemComponent key={item.id} item={item} onDelete={handleDelete} />
               ))}
             </div>
