@@ -6,6 +6,7 @@ import { AddItemForm } from './components/AddItemForm';
 import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
 import { RecipeList } from './components/RecipeList';
+import { EditItemModal } from './components/EditItemModal';
 import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
 import { getExpirationWarnings, calculateDaysUntilExpiration } from './utils/dateUtils';
 
@@ -37,6 +38,7 @@ const saveItems = (items: FridgeItem[]) => {
 
 function App() {
   const [items, setItems] = useState<FridgeItem[]>(() => loadItems());
+  const [editingItem, setEditingItem] = useState<FridgeItem | null>(null);
 
   useEffect(() => {
     saveItems(items);
@@ -49,6 +51,13 @@ function App() {
 
   const handleDelete = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleUpdate = (updatedItem: FridgeItem) => {
+    setItems(prev =>
+      prev.map(item => (item.id === updatedItem.id ? updatedItem : item))
+    );
+    setEditingItem(null);
   };
 
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
@@ -178,7 +187,12 @@ function App() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {sortedItems.map(item => (
-                <FridgeItemComponent key={item.id} item={item} onDelete={handleDelete} />
+                <FridgeItemComponent
+                  key={item.id}
+                  item={item}
+                  onDelete={handleDelete}
+                  onEdit={(selected) => setEditingItem(selected)}
+                />
               ))}
             </div>
           </div>
@@ -281,6 +295,13 @@ function App() {
             </div>
           </aside>
         </section>
+        {editingItem && (
+          <EditItemModal
+            item={editingItem}
+            onCancel={() => setEditingItem(null)}
+            onSave={handleUpdate}
+          />
+        )}
       </main>
     </div>
   );

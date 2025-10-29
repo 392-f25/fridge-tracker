@@ -3,13 +3,11 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import enUS from 'date-fns/locale/en-US';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { FridgeItem } from '../types';
+import { categories, units } from '../constants/itemOptions';
 
 interface AddItemFormProps {
   onAdd: (item: Omit<FridgeItem, 'id'>) => void;
 }
-
-const categories = ['Vegetables', 'Fruits', 'Dairy', 'Meat', 'Grains', 'Beverages', 'Other'];
-const units = ['pcs', 'kg', 'g', 'L', 'mL', 'lb', 'oz'];
 
 export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -230,6 +228,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               dateFormat="MMM d, yyyy"
               locale="en-US"
               className="input-date"
+              portalId="react-datepicker-portal"
               wrapperClassName="date-wrapper"
             />
             {formData.purchaseDate && (
@@ -264,6 +263,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               dateFormat="MMM d, yyyy"
               locale="en-US"
               className="input-date"
+              portalId="react-datepicker-portal"
               wrapperClassName="date-wrapper"
             />
             {formData.expirationDate && (

@@ -5,9 +5,10 @@ import { calculateDaysUntilExpiration, formatDate, getExpirationSeverity } from 
 interface FridgeItemProps {
   item: FridgeItemType;
   onDelete: (id: string) => void;
+  onEdit: (item: FridgeItemType) => void;
 }
 
-export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete }) => {
+export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete, onEdit }) => {
   const daysUntilExpiration = calculateDaysUntilExpiration(item.expirationDate);
   const severity = getExpirationSeverity(daysUntilExpiration);
 
@@ -155,24 +156,44 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete 
           </div>
         </div>
 
-        <button
-          onClick={() => onDelete(item.id)}
-          style={{
-            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            padding: '10px 16px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '700',
-            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
-            transition: 'all 0.2s ease',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🗑️ Remove
-        </button>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => onEdit(item)}
+            style={{
+              background: 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--cool-sky) 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '10px 16px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '700',
+              boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            ✏️ Edit
+          </button>
+          <button
+            onClick={() => onDelete(item.id)}
+            style={{
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '10px 16px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '700',
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🗑️ Remove
+          </button>
+        </div>
       </div>
     </div>
   );
