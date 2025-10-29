@@ -166,10 +166,13 @@ input:focus, select:focus {
 }
 
 .react-datepicker-popper {
-  z-index: 10000 !important;
+  z-index: 20000 !important;
+  pointer-events: auto;
 }
 
 #react-datepicker-portal {
-  position: relative;
-  z-index: 10000;
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  pointer-events: none;
 }
