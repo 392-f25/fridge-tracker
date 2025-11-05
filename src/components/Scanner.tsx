@@ -12,6 +12,27 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
   const [scanning, setScanning] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  // ONNX session cache
+  let onnxLoading = false;
+  const MODEL_URL = (import.meta as any).env?.VITE_ONNX_MODEL_URL || '/models/fridge-yolo.onnx';
+
+  const ensureOnnxSession = async () => {
+    if ((window as any).__onnx_session) return (window as any).__onnx_session;
+    if (onnxLoading) return null;
+    onnxLoading = true;
+    try {
+      const runner = await import('../utils/onnxRunner');
+      const s = await runner.createSession(MODEL_URL);
+      (window as any).__onnx_session = s;
+      return s;
+    } catch (e) {
+      console.debug('ONNX session create failed', e);
+      return null;
+    } finally {
+      onnxLoading = false;
+    }
+  };
+
   useEffect(() => {
     return () => {
       // clean up if component unmounts
@@ -121,6 +142,21 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
       const img = document.createElement('img');
       img.src = URL.createObjectURL(file);
       await new Promise(resolve => { img.onload = resolve; });
+      // Try ONNX fast path first if model configured
+      try {
+        const session = await ensureOnnxSession();
+        if (session) {
+          const runner = await import('../utils/onnxRunner');
+          const onnxResults = await runner.runDetect(session, img, 640, 0.25, 0.45);
+          if (onnxResults && onnxResults.length>0) {
+            // map to callback shape
+            if (onLabelsDetected) onLabelsDetected(onnxResults.map((r: any) => ({ name: r.name, score: r.score, thumbnail: r.thumbnail })));
+            return;
+          }
+        }
+      } catch (e) {
+        console.debug('onnx detect failed, falling back', e);
+      }
       // load tfjs first then coco-ssd dynamically
       // @ts-ignore
       await import('@tensorflow/tfjs');
