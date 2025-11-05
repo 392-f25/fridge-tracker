@@ -129,13 +129,45 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
       const model = await coco.load();
       // @ts-ignore
       const predictions = await model.detect(img as any);
-      const labels = (predictions || []).map((p: any) => p.class).slice(0,5);
+      // build label list with scores from coco-ssd
+      const cocoLabels = (predictions || []).map((p: any) => ({ name: p.class, score: p.score || 0 }));
+
+      // As a fallback/additional signal, also run MobileNet image classification which can give
+      // more specific object labels (e.g., 'orange' vs 'orange juice'). We'll run it and merge results.
+      let mobilenetLabels: Array<{ name: string; score: number }> = [];
+      try {
+        // @ts-ignore
+        const mobilenet = await import('@tensorflow-models/mobilenet');
+        // @ts-ignore
+        const mnModel = await mobilenet.load();
+        // @ts-ignore
+        const mnPreds = await mnModel.classify(img as any);
+        mobilenetLabels = (mnPreds || []).map((p: any) => ({ name: p.className || p.class || '', score: p.probability || p.score || 0 }));
+        console.debug('mobilenet predictions:', mnPreds);
+      } catch (e) {
+        // mobilenet optional — continue if it fails
+        console.debug('mobilenet failed or not available', e);
+      }
+
+      // merge coco + mobilenet labels, dedupe by simple lowercase name, prefer higher score
+      const combined = [...cocoLabels, ...mobilenetLabels];
+      const byName: Record<string, { name: string; score: number }> = {};
+      combined.forEach(item => {
+        const key = (item.name || '').toLowerCase().trim();
+        if (!key) return;
+        if (!byName[key] || (item.score || 0) > (byName[key].score || 0)) {
+          byName[key] = item;
+        }
+      });
+      const merged = Object.values(byName).sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 8);
+
       // revoke object URL
       try { URL.revokeObjectURL(img.src); } catch (e) {}
-      const labelText = labels.length > 0 ? labels.join(', ') : 'No labels detected';
+
+      const labelText = merged.length > 0 ? merged.map(m => `${m.name} (${(m.score || 0).toFixed(2)})`).join(', ') : 'No labels detected';
       setMessage(`Image recognition: ${labelText}`);
-      console.debug('coco-ssd predictions:', predictions);
-      if (onLabelsDetected) onLabelsDetected(labels);
+      console.debug('coco-ssd predictions:', predictions, 'combined labels:', merged);
+      if (onLabelsDetected) onLabelsDetected(merged.map(m => m.name));
     } catch (e) {
       console.error('Image classification failed', e);
       setMessage('Image recognition failed. Please try another photo.');
