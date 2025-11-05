@@ -24,7 +24,19 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   });
 
   const [scannerOpen, setScannerOpen] = useState(false);
-  const [candidates, setCandidates] = useState<Array<{name: string; category?: string; source: string;}>>([]);
+  const [candidates, setCandidates] = useState<Array<{name: string; category?: string; source?: string; confidence?: number; thumbnail?: string;}>>([]);
+
+  // helper to clear candidates and revoke any blob thumbnails
+  const clearCandidates = () => {
+    try {
+      candidates.forEach(c => {
+        if (c.thumbnail && c.thumbnail.startsWith && c.thumbnail.startsWith('blob:')) {
+          try { URL.revokeObjectURL(c.thumbnail); } catch (e) {}
+        }
+      });
+    } catch (e) {}
+    setCandidates([]);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,14 +183,21 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
             }}
             onLabelsDetected={async (labels) => {
               if (!labels || labels.length === 0) return;
-              const term = labels[0];
+              // labels are objects: { name, score?, thumbnail? }
               try {
                 const mod = await import('../utils/productApi');
-                const results = await mod.searchProductsByTerm(term);
-                const mapped = (results || []).slice(0,5).map((r: any) => ({ name: r.product_name || r.product_name_en || r.brands || term, category: (r.categories && r.categories.length>0) ? r.categories.split(',')[0] : undefined, source: 'vision' }));
-                if (mapped.length > 0) setCandidates(mapped);
-                else setCandidates([{ name: term, source: 'vision' }]);
-              } catch (e) { console.warn(e); setCandidates([{ name: term, source: 'vision' }]); }
+                const mapped = await Promise.all(labels.slice(0,5).map(async (l: any) => {
+                  try {
+                    const results = await mod.searchProductsByTerm(l.name);
+                    if (results && results.length > 0) {
+                      const r = results[0];
+                      return { name: r.product_name || r.product_name_en || r.brands || l.name, category: (r.categories && r.categories.length>0) ? r.categories.split(',')[0] : undefined, source: 'vision', confidence: l.score || l.confidence || 0, thumbnail: l.thumbnail };
+                    }
+                  } catch (e) { /* ignore per-item failure */ }
+                  return { name: l.name, category: undefined, source: 'vision', confidence: l.score || l.confidence || 0, thumbnail: l.thumbnail };
+                }));
+                setCandidates(mapped);
+              } catch (e) { console.warn(e); setCandidates(labels.slice(0,5).map((l: any) => ({ name: l.name || l, source: 'vision', confidence: (l && (l.score || l.confidence)) || undefined, thumbnail: (l && l.thumbnail) || undefined }))); }
             }}
           />
           {candidates.length > 0 && (
@@ -188,13 +207,23 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
                 {candidates.map((c, idx) => (
                   <button key={idx} type="button" onClick={() => {
                     setFormData(fd => ({ ...fd, name: c.name, category: c.category || fd.category }));
+                    // revoke other thumbnails
+                    try { candidates.forEach(cc => { if (cc.thumbnail && cc.thumbnail.startsWith && cc.thumbnail.startsWith('blob:')) { try { URL.revokeObjectURL(cc.thumbnail); } catch (e) {} } }); } catch (e) {}
                     setCandidates([]);
-                  }} style={{ padding: '8px 12px', borderRadius: 8, background: 'linear-gradient(135deg,#eef2ff,#e0e7ff)', border: '1px solid #c7d2fe', cursor: 'pointer' }}>
-                    <div style={{ fontSize: 14, fontWeight: 600 }}>{c.name}</div>
-                    {c.category && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{c.category}</div>}
+                  }} style={{ padding: '8px 12px', borderRadius: 8, background: 'linear-gradient(135deg,#eef2ff,#e0e7ff)', border: '1px solid #c7d2fe', cursor: 'pointer', display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {c.thumbnail ? (
+                      <img src={c.thumbnail} alt={c.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                    ) : (
+                      <div style={{ width: 48, height: 48, borderRadius: 6, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>📷</div>
+                    )}
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>{c.name}</div>
+                      {c.category && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{c.category}</div>}
+                      {typeof c.confidence === 'number' && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Conf: {(c.confidence*100).toFixed(0)}%</div>}
+                    </div>
                   </button>
                 ))}
-                <button type="button" onClick={() => setCandidates([])} style={{ padding: '8px 12px', borderRadius: 8 }}>Dismiss</button>
+                <button type="button" onClick={() => clearCandidates()} style={{ padding: '8px 12px', borderRadius: 8 }}>Dismiss</button>
               </div>
             </div>
           )}

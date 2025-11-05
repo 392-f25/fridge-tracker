@@ -3,7 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface ScannerProps {
   onBarcodeDetected?: (barcode: string) => void;
-  onLabelsDetected?: (labels: string[]) => void;
+  // labels: array of objects with name, score and optional thumbnail (object URL)
+  onLabelsDetected?: (labels: Array<{ name: string; score?: number; thumbnail?: string }>) => void;
 }
 
 export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDetected }) => {
@@ -161,13 +162,13 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
       });
       const merged = Object.values(byName).sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 8);
 
-      // revoke object URL
-      try { URL.revokeObjectURL(img.src); } catch (e) {}
+      // Keep the object URL as thumbnail for the candidates (parent will revoke when done)
+      const thumb = img.src;
 
       const labelText = merged.length > 0 ? merged.map(m => `${m.name} (${(m.score || 0).toFixed(2)})`).join(', ') : 'No labels detected';
       setMessage(`Image recognition: ${labelText}`);
       console.debug('coco-ssd predictions:', predictions, 'combined labels:', merged);
-      if (onLabelsDetected) onLabelsDetected(merged.map(m => m.name));
+      if (onLabelsDetected) onLabelsDetected(merged.map(m => ({ name: m.name, score: m.score, thumbnail: thumb })));
     } catch (e) {
       console.error('Image classification failed', e);
       setMessage('Image recognition failed. Please try another photo.');
