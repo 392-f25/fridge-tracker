@@ -100,7 +100,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         gap: '10px',
         color: 'var(--text-primary)'
       }}>
-        <span style={{ fontSize: '28px' }}>��</span>
+        <span style={{ fontSize: '28px' }}>📝</span>
         Add New Item
       </h3>
       

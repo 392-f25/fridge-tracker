@@ -76,22 +76,26 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
 
   const handleFile = async (file: File | null) => {
     if (!file) return;
-    setMessage('Running local image classification...');
+      setMessage('Running local image classification...');
     try {
       const img = document.createElement('img');
       img.src = URL.createObjectURL(file);
       await new Promise(resolve => { img.onload = resolve; });
-      // load coco-ssd dynamically
-      // @ts-ignore
-      const coco = await import('@tensorflow-models/coco-ssd');
+      // load tfjs first then coco-ssd dynamically
       // @ts-ignore
       await import('@tensorflow/tfjs');
+      // @ts-ignore
+      const coco = await import('@tensorflow-models/coco-ssd');
       // @ts-ignore
       const model = await coco.load();
       // @ts-ignore
       const predictions = await model.detect(img as any);
       const labels = (predictions || []).map((p: any) => p.class).slice(0,5);
-      setMessage(null);
+      // revoke object URL
+      try { URL.revokeObjectURL(img.src); } catch (e) {}
+      const labelText = labels.length > 0 ? labels.join(', ') : 'No labels detected';
+      setMessage(`Image recognition: ${labelText}`);
+      console.debug('coco-ssd predictions:', predictions);
       if (onLabelsDetected) onLabelsDetected(labels);
     } catch (e) {
       console.error('Image classification failed', e);
