@@ -74,6 +74,45 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
     setScanning(false);
   };
 
+  const captureFrame = async () => {
+    if (!readerRef.current) {
+      setMessage('No camera preview available to capture');
+      return;
+    }
+    // try to find a video element that html5-qrcode renders
+    const video = readerRef.current.querySelector('video') as HTMLVideoElement | null;
+    if (!video) {
+      setMessage('Camera preview not found. Make sure camera is started.');
+      return;
+    }
+    try {
+      setMessage('Capturing frame...');
+      const w = video.videoWidth || 640;
+      const h = video.videoHeight || 480;
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        setMessage('Unable to capture frame (canvas error)');
+        return;
+      }
+      ctx.drawImage(video, 0, 0, w, h);
+      // convert to blob and reuse handleFile path
+      await new Promise<void>((resolve, reject) => {
+        canvas.toBlob(async (blob) => {
+          if (!blob) return reject(new Error('Failed to create image blob'));
+          const file = new File([blob], 'capture.jpg', { type: blob.type || 'image/jpeg' });
+          await handleFile(file);
+          resolve();
+        }, 'image/jpeg', 0.95);
+      });
+    } catch (e) {
+      console.error('captureFrame failed', e);
+      setMessage('Capture failed. Try again.');
+    }
+  };
+
   const handleFile = async (file: File | null) => {
     if (!file) return;
       setMessage('Running local image classification...');
@@ -109,6 +148,11 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
         <button type="button" onClick={() => (scanning ? stopCameraScan() : startCameraScan())} style={{ padding: '8px 12px', borderRadius: 8 }}>
           {scanning ? 'Stop camera' : 'Start camera scan'}
         </button>
+        {scanning && (
+          <button type="button" onClick={captureFrame} style={{ padding: '8px 12px', borderRadius: 8 }}>
+            Capture frame
+          </button>
+        )}
         <label style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--card-bg)', cursor: 'pointer' }}>
           Upload photo
           <input
