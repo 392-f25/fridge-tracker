@@ -198,13 +198,63 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
       });
       const merged = Object.values(byName).sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 8);
 
-      // Keep the object URL as thumbnail for the candidates (parent will revoke when done)
-      const thumb = img.src;
+      // Post-process labels to handle common false-positives like 'orange juice' vs 'orange'
+      const FRUIT_KEYWORDS = ['orange','mandarin','tangerine','lemon','lime','apple','grape','banana','pear','peach','strawberry'];
+      const DOWNWEIGHT_BRAND = ['fanta','cola','coca','pepsi'];
 
-      const labelText = merged.length > 0 ? merged.map(m => `${m.name} (${(m.score || 0).toFixed(2)})`).join(', ') : 'No labels detected';
-      setMessage(`Image recognition: ${labelText}`);
-      console.debug('coco-ssd predictions:', predictions, 'combined labels:', merged);
-      if (onLabelsDetected) onLabelsDetected(merged.map(m => ({ name: m.name, score: m.score, thumbnail: thumb })));
+      function postProcessLabels(items: Array<{name:string; score:number}>) {
+        const map = new Map<string,{name:string;score:number}>();
+        items.forEach(it => map.set(it.name.toLowerCase(), { name: it.name, score: it.score }));
+
+        // If there's a label that contains 'juice' but also contains a fruit keyword, create/boost the fruit label
+        items.forEach(it => {
+          const ln = it.name.toLowerCase();
+          if (ln.includes('juice')) {
+            for (const f of FRUIT_KEYWORDS) {
+              if (ln.includes(f)) {
+                const fruitKey = f;
+                const existing = map.get(fruitKey);
+                const boostedScore = Math.max(existing ? existing.score : 0, (it.score || 0) * 0.9);
+                map.set(fruitKey, { name: f, score: boostedScore });
+              }
+            }
+          }
+        });
+
+        // Downweight obvious brand/product names that often appear with packaging
+        for (const b of DOWNWEIGHT_BRAND) {
+          const entry = map.get(b);
+          if (entry) {
+            entry.score = entry.score * 0.2;
+            map.set(b, entry);
+          }
+        }
+
+        // Also strip trailing descriptors like 'jam', 'syrup', 'juice' to create base noun
+        Array.from(map.values()).forEach(v => {
+          const ln = v.name.toLowerCase();
+          const stripped = ln.replace(/\b(jam|syrup|juice|drink|beverage|bottle|pack|can)\b/g, '').trim();
+          if (stripped && stripped !== ln) {
+            const key = stripped;
+            const existing = map.get(key);
+            const score = v.score * 0.9;
+            if (!existing || score > existing.score) map.set(key, { name: stripped, score });
+          }
+        });
+
+        // return sorted array
+        return Array.from(map.values()).sort((a,b)=> (b.score||0)-(a.score||0)).slice(0,8);
+      }
+
+  const finalMerged = postProcessLabels(merged as any);
+
+  // Keep the object URL as thumbnail for the candidates (parent will revoke when done)
+  const thumb = img.src;
+
+  const labelText = finalMerged.length > 0 ? finalMerged.map(m => `${m.name} (${(m.score || 0).toFixed(2)})`).join(', ') : 'No labels detected';
+  setMessage(`Image recognition: ${labelText}`);
+  console.debug('coco-ssd predictions:', predictions, 'combined labels:', merged, 'post-processed:', finalMerged);
+  if (onLabelsDetected) onLabelsDetected(finalMerged.map(m => ({ name: m.name, score: m.score, thumbnail: thumb })));
     } catch (e) {
       console.error('Image classification failed', e);
       setMessage('Image recognition failed. Please try another photo.');
