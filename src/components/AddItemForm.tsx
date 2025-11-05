@@ -4,6 +4,7 @@ import enUS from 'date-fns/locale/en-US';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { FridgeItem } from '../types';
 import { categories, units } from '../constants/itemOptions';
+import Scanner from './Scanner';
 
 interface AddItemFormProps {
   onAdd: (item: Omit<FridgeItem, 'id'>) => void;
@@ -21,6 +22,8 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     purchaseDate: new Date(),
     expirationDate: null as Date | null,
   });
+
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +47,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       expirationDate: null,
     });
     setIsOpen(false);
+    setScannerOpen(false);
   };
 
   if (!isOpen) {
@@ -96,7 +100,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         gap: '10px',
         color: 'var(--text-primary)'
       }}>
-        <span style={{ fontSize: '28px' }}>📝</span>
+        <span style={{ fontSize: '28px' }}>��</span>
         Add New Item
       </h3>
       
@@ -126,7 +130,62 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           }}
           placeholder="e.g., Milk, Apples, Chicken"
         />
+        <div style={{ marginTop: 8 }}>
+          <button type="button" onClick={() => setScannerOpen(s => !s)} style={{ padding: '8px 12px', borderRadius: 8, marginRight: 8 }}>
+            {scannerOpen ? 'Close scanner' : 'Scan / Photo'}
+          </button>
+          <button type="button" onClick={async () => {
+            const code = window.prompt('Enter barcode (or paste scanned code)');
+            if (!code) return;
+            try {
+              const mod = await import('../utils/productApi');
+              const p = await mod.fetchProductByBarcode(code);
+              if (p && p.product_name) {
+                setFormData(fd => ({ ...fd, name: p.product_name }));
+                alert(`Found product: ${p.product_name}`);
+              } else {
+                alert('No product found for that barcode');
+              }
+            } catch (e) { console.warn(e); alert('Lookup failed'); }
+          }} style={{ padding: '8px 12px', borderRadius: 8 }}>
+            Lookup barcode
+          </button>
+        </div>
       </div>
+
+      {scannerOpen && (
+        <div style={{ margin: '12px 0' }}>
+          <Scanner
+            onBarcodeDetected={async (barcode) => {
+              try {
+                const mod = await import('../utils/productApi');
+                const p = await mod.fetchProductByBarcode(barcode);
+                if (p && p.product_name) {
+                  setFormData(fd => ({ ...fd, name: p.product_name }));
+                  alert(`Detected: ${p.product_name}`);
+                } else {
+                  alert(`Scanned code: ${barcode} (no product found)`);
+                }
+              } catch (e) { console.warn(e); alert('Lookup failed'); }
+            }}
+            onLabelsDetected={async (labels) => {
+              if (!labels || labels.length === 0) return;
+              const term = labels[0];
+              try {
+                const mod = await import('../utils/productApi');
+                const results = await mod.searchProductsByTerm(term);
+                if (results && results.length > 0) {
+                  const first = results[0];
+                  if (first && first.product_name) setFormData(fd => ({ ...fd, name: first.product_name }));
+                  alert(`Image tags: ${labels.join(', ')}\nFound ${results.length} candidate(s).`);
+                } else {
+                  alert(`Image tags: ${labels.join(', ')} (no matches)`);
+                }
+              } catch (e) { console.warn(e); }
+            }}
+          />
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '18px' }}>
         <div>
