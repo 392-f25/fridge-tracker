@@ -183,21 +183,15 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
             }}
             onLabelsDetected={async (labels) => {
               if (!labels || labels.length === 0) return;
-              // labels are objects: { name, score?, thumbnail? }
-              try {
-                const mod = await import('../utils/productApi');
-                const mapped = await Promise.all(labels.slice(0,5).map(async (l: any) => {
-                  try {
-                    const results = await mod.searchProductsByTerm(l.name);
-                    if (results && results.length > 0) {
-                      const r = results[0];
-                      return { name: r.product_name || r.product_name_en || r.brands || l.name, category: (r.categories && r.categories.length>0) ? r.categories.split(',')[0] : undefined, source: 'vision', confidence: l.score || l.confidence || 0, thumbnail: l.thumbnail };
-                    }
-                  } catch (e) { /* ignore per-item failure */ }
-                  return { name: l.name, category: undefined, source: 'vision', confidence: l.score || l.confidence || 0, thumbnail: l.thumbnail };
-                }));
-                setCandidates(mapped);
-              } catch (e) { console.warn(e); setCandidates(labels.slice(0,5).map((l: any) => ({ name: l.name || l, source: 'vision', confidence: (l && (l.score || l.confidence)) || undefined, thumbnail: (l && l.thumbnail) || undefined }))); }
+              // Use raw vision labels directly as candidates (no lookup/transformation)
+              const mapped = labels.slice(0, 5).map((l: any) => ({
+                name: l.name || l,
+                category: undefined,
+                source: 'vision',
+                confidence: (l && (l.score || l.confidence)) || undefined,
+                thumbnail: (l && l.thumbnail) || undefined,
+              }));
+              setCandidates(mapped);
             }}
           />
           {candidates.length > 0 && (
