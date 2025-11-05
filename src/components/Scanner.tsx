@@ -52,9 +52,7 @@ export const Scanner: React.FC<ScannerProps> = ({ onBarcodeDetected, onLabelsDet
           html5QrCode.stop().catch(() => {});
           setScanning(false);
         },
-        (errorMessage: any) => {
-          // ignore intermittent errors
-        }
+        (_: any) => {}
       );
     } catch (e: any) {
       console.error('Camera scan failed', e);
