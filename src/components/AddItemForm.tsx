@@ -24,6 +24,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   });
 
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [candidates, setCandidates] = useState<Array<{name: string; category?: string; source: string;}>>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,12 +162,12 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
                 const mod = await import('../utils/productApi');
                 const p = await mod.fetchProductByBarcode(barcode);
                 if (p && p.product_name) {
-                  setFormData(fd => ({ ...fd, name: p.product_name }));
-                  alert(`Detected: ${p.product_name}`);
+                  const mappedCat = (p.categories && p.categories.length>0) ? p.categories.split(',')[0] : undefined;
+                  setCandidates([{ name: p.product_name, category: mappedCat, source: 'barcode' }]);
                 } else {
-                  alert(`Scanned code: ${barcode} (no product found)`);
+                  setCandidates([{ name: `Scanned code: ${barcode}`, source: 'barcode' }]);
                 }
-              } catch (e) { console.warn(e); alert('Lookup failed'); }
+              } catch (e) { console.warn(e); setCandidates([{ name: `Scanned code: ${barcode}`, source: 'barcode' }]); }
             }}
             onLabelsDetected={async (labels) => {
               if (!labels || labels.length === 0) return;
@@ -174,16 +175,29 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               try {
                 const mod = await import('../utils/productApi');
                 const results = await mod.searchProductsByTerm(term);
-                if (results && results.length > 0) {
-                  const first = results[0];
-                  if (first && first.product_name) setFormData(fd => ({ ...fd, name: first.product_name }));
-                  alert(`Image tags: ${labels.join(', ')}\nFound ${results.length} candidate(s).`);
-                } else {
-                  alert(`Image tags: ${labels.join(', ')} (no matches)`);
-                }
-              } catch (e) { console.warn(e); }
+                const mapped = (results || []).slice(0,5).map((r: any) => ({ name: r.product_name || r.product_name_en || r.brands || term, category: (r.categories && r.categories.length>0) ? r.categories.split(',')[0] : undefined, source: 'vision' }));
+                if (mapped.length > 0) setCandidates(mapped);
+                else setCandidates([{ name: term, source: 'vision' }]);
+              } catch (e) { console.warn(e); setCandidates([{ name: term, source: 'vision' }]); }
             }}
           />
+          {candidates.length > 0 && (
+            <div style={{ marginTop: 12, padding: 12, background: 'var(--card-bg)', borderRadius: 8 }}>
+              <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--text-secondary)' }}>Detected candidates — click to autofill</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {candidates.map((c, idx) => (
+                  <button key={idx} type="button" onClick={() => {
+                    setFormData(fd => ({ ...fd, name: c.name, category: c.category || fd.category }));
+                    setCandidates([]);
+                  }} style={{ padding: '8px 12px', borderRadius: 8, background: 'linear-gradient(135deg,#eef2ff,#e0e7ff)', border: '1px solid #c7d2fe', cursor: 'pointer' }}>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{c.name}</div>
+                    {c.category && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{c.category}</div>}
+                  </button>
+                ))}
+                <button type="button" onClick={() => setCandidates([])} style={{ padding: '8px 12px', borderRadius: 8 }}>Dismiss</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
