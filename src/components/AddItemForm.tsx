@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import type { FridgeItem } from '../types';
 import { categories, units } from '../constants/itemOptions';
 import Scanner from './Scanner';
+import ReceiptScanner from './ReceiptScanner';
 
 interface AddItemFormProps {
   onAdd: (item: Omit<FridgeItem, 'id'>) => void;
@@ -24,6 +25,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   });
 
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const [candidates, setCandidates] = useState<Array<{name: string; category?: string; source?: string; confidence?: number; thumbnail?: string;}>>([]);
 
   // helper to clear candidates and revoke any blob thumbnails
@@ -65,29 +67,68 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        style={{
-          width: '100%',
-          padding: '20px',
-          background: 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--fresh-mint) 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '16px',
-          fontSize: '18px',
-          fontWeight: '700',
-          cursor: 'pointer',
-          marginBottom: '32px',
-          boxShadow: '0 4px 16px rgba(6, 182, 212, 0.25)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '10px'
-        }}
-      >
-        <span style={{ fontSize: '24px' }}>➕</span>
-        Add New Item
-      </button>
+      <div style={{ width: '100%', marginBottom: '32px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <button
+          onClick={() => setIsOpen(true)}
+          style={{
+            flex: 1,
+            padding: '20px',
+            background: 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--fresh-mint) 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '16px',
+            fontSize: '18px',
+            fontWeight: '700',
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(6, 182, 212, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px'
+          }}
+        >
+          <span style={{ fontSize: '24px' }}>➕</span>
+          Add New Item
+        </button>
+
+        <div style={{ width: 220 }}>
+          <button
+            onClick={() => setReceiptOpen(true)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              border: '2px dashed var(--border-light)',
+              background: 'var(--card-bg)',
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            📄 Import from receipt
+          </button>
+          {receiptOpen && (
+            <div style={{ marginTop: 12 }}>
+              <ReceiptScanner
+                onImport={(items) => {
+                  items.forEach((it: any) => {
+                    try {
+                      onAdd({
+                        name: it.name,
+                        category: it.category || categories[0],
+                        quantity: it.quantity || 1,
+                        unit: it.unit || units[0],
+                        purchaseDate: it.purchaseDate || new Date(),
+                        expirationDate: it.expirationDate || null,
+                      });
+                    } catch (e) { console.warn('import add failed', e); }
+                  });
+                }}
+                onClose={() => setReceiptOpen(false)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -147,6 +188,9 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           <button type="button" onClick={() => setScannerOpen(s => !s)} style={{ padding: '8px 12px', borderRadius: 8, marginRight: 8 }}>
             {scannerOpen ? 'Close scanner' : 'Scan / Photo'}
           </button>
+          <button type="button" onClick={() => setReceiptOpen(s => !s)} style={{ padding: '8px 12px', borderRadius: 8, marginRight: 8 }}>
+            {receiptOpen ? 'Close receipt import' : 'Import from receipt'}
+          </button>
           <button type="button" onClick={async () => {
             const code = window.prompt('Enter barcode (or paste scanned code)');
             if (!code) return;
@@ -194,6 +238,28 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               setCandidates(mapped);
             }}
           />
+          {receiptOpen && (
+            <div style={{ marginTop: 12 }}>
+              <ReceiptScanner
+                onImport={(items) => {
+                  // call onAdd for each imported item
+                  items.forEach((it: any) => {
+                    try {
+                      onAdd({
+                        name: it.name,
+                        category: it.category || categories[0],
+                        quantity: it.quantity || 1,
+                        unit: it.unit || units[0],
+                        purchaseDate: it.purchaseDate || new Date(),
+                        expirationDate: it.expirationDate || null,
+                      });
+                    } catch (e) { console.warn('import add failed', e); }
+                  });
+                }}
+                onClose={() => setReceiptOpen(false)}
+              />
+            </div>
+          )}
           {candidates.length > 0 && (
             <div style={{ marginTop: 12, padding: 12, background: 'var(--card-bg)', borderRadius: 8 }}>
               <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--text-secondary)' }}>Detected candidates — click to autofill</div>
