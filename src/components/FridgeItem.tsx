@@ -12,38 +12,33 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete,
   const daysUntilExpiration = calculateDaysUntilExpiration(item.expirationDate);
   const severity = getExpirationSeverity(daysUntilExpiration);
 
-  const getSeverityColor = () => {
+  const getSeverityClasses = () => {
     switch (severity) {
       case 'critical':
-        return 'var(--critical-red)';
+        return {
+          background: 'bg-gradient-to-br from-[#fef2f2] to-[#fee2e2]',
+          border: 'border-[#fecaca]',
+          badge: 'bg-[var(--critical-red)]',
+          text: 'text-[var(--critical-red)]'
+        };
       case 'warning':
-        return 'var(--warning-orange)';
+        return {
+          background: 'bg-gradient-to-br from-[#fffbeb] to-[#fef3c7]',
+          border: 'border-[#fde68a]',
+          badge: 'bg-[var(--warning-orange)]',
+          text: 'text-[var(--warning-orange)]'
+        };
       default:
-        return 'var(--fresh-mint)';
+        return {
+          background: 'bg-gradient-to-br from-[#f0fdfa] to-[#ccfbf1]',
+          border: 'border-[#a7f3d0]',
+          badge: 'bg-[var(--fresh-mint)]',
+          text: 'text-[var(--fresh-mint)]'
+        };
     }
   };
 
-  const getSeverityBackground = () => {
-    switch (severity) {
-      case 'critical':
-        return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
-      case 'warning':
-        return 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)';
-      default:
-        return 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)';
-    }
-  };
-
-  const getSeverityBorder = () => {
-    switch (severity) {
-      case 'critical':
-        return '2px solid #fecaca';
-      case 'warning':
-        return '2px solid #fde68a';
-      default:
-        return '2px solid #a7f3d0';
-    }
-  };
+  const severityClasses = getSeverityClasses();
 
   const getExpirationText = () => {
     if (daysUntilExpiration < 0) {
@@ -58,96 +53,29 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete,
   };
 
   return (
-    <div
-      style={{
-        background: getSeverityBackground(),
-        border: getSeverityBorder(),
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-        transition: 'all 0.2s ease',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 80,
-        height: 80,
-        background: getSeverityColor(),
-        opacity: 0.1,
-        borderRadius: '0 16px 0 100%',
-      }} />
+    <div className={`${severityClasses.background} border-2 ${severityClasses.border} rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-200 relative overflow-hidden`}>
+      <div className={`absolute top-0 right-0 w-20 h-20 ${severityClasses.badge} opacity-10 rounded-tl-none rounded-tr-2xl rounded-bl-[100%] rounded-br-none`} />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', position: 'relative' }}>
-        <div style={{ flex: 1 }}>
-          <h3 style={{
-            margin: '0 0 12px 0',
-            fontSize: '20px',
-            fontWeight: '700',
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.02em'
-          }}>
+      <div className="flex justify-between items-start relative">
+        <div className="flex-1">
+          <h3 className="m-0 mb-3 text-xl font-bold text-[var(--text-primary)] tracking-tight">
             {item.name}
           </h3>
 
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            marginBottom: '12px',
-            flexWrap: 'wrap'
-          }}>
-            <span style={{
-              background: 'rgba(255, 255, 255, 0.8)',
-              padding: '6px 12px',
-              borderRadius: '8px',
-              fontSize: '13px',
-              fontWeight: '600',
-              color: 'var(--text-secondary)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              border: '1px solid var(--border-light)'
-            }}>
+          <div className="flex gap-3 mb-3 flex-wrap">
+            <span className="bg-white/80 px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-secondary)] inline-flex items-center gap-1.5 border border-[var(--border-light)]">
               📦 {item.quantity} {item.unit}
             </span>
-            <span style={{
-              background: 'rgba(255, 255, 255, 0.8)',
-              padding: '6px 12px',
-              borderRadius: '8px',
-              fontSize: '13px',
-              fontWeight: '600',
-              color: 'var(--text-secondary)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              border: '1px solid var(--border-light)'
-            }}>
+            <span className="bg-white/80 px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-secondary)] inline-flex items-center gap-1.5 border border-[var(--border-light)]">
               🏷️ {item.category}
             </span>
           </div>
 
-          <div style={{
-            fontSize: '13px',
-            color: 'var(--text-secondary)',
-            lineHeight: '1.6'
-          }}>
-            <div style={{ fontWeight: 500 }}>
+          <div className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <div className="font-medium">
               Purchased: {formatDate(item.purchaseDate)}
             </div>
-            <div
-              style={{
-                color: getSeverityColor(),
-                fontWeight: '700',
-                marginTop: '6px',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
+            <div className={`${severityClasses.text} font-bold mt-1.5 text-sm flex items-center gap-1.5`}>
               {severity === 'critical' && '🚨'}
               {severity === 'warning' && '⚠️'}
               {severity === 'info' && '✅'}
@@ -156,40 +84,16 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete,
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => onEdit(item)}
-            style={{
-              background: 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--cool-sky) 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '10px 16px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '700',
-              boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
+            className="bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--cool-sky)] text-white border-none rounded-xl px-4 py-2.5 cursor-pointer text-sm font-bold shadow-[0_2px_8px_rgba(6,182,212,0.3)] transition-all duration-200 whitespace-nowrap"
           >
             ✏️ Edit
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            style={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '10px 16px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '700',
-              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
+            className="bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white border-none rounded-xl px-4 py-2.5 cursor-pointer text-sm font-bold shadow-[0_2px_8px_rgba(239,68,68,0.3)] transition-all duration-200 whitespace-nowrap"
           >
             🗑️ Remove
           </button>

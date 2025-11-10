@@ -50,25 +50,9 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        style={{
-          width: '100%',
-          padding: '20px',
-          background: 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--fresh-mint) 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '16px',
-          fontSize: '18px',
-          fontWeight: '700',
-          cursor: 'pointer',
-          marginBottom: '32px',
-          boxShadow: '0 4px 16px rgba(6, 182, 212, 0.25)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '10px'
-        }}
+        className="w-full p-5 bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--fresh-mint)] text-white border-none rounded-2xl text-lg font-bold cursor-pointer mb-8 shadow-[0_4px_16px_rgba(6,182,212,0.25)] flex items-center justify-center gap-2.5"
       >
-        <span style={{ fontSize: '24px' }}>➕</span>
+        <span className="text-2xl">➕</span>
         Add New Item
       </button>
     );
@@ -77,82 +61,35 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        background: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(10px)',
-        padding: '28px',
-        borderRadius: '20px',
-        marginBottom: '32px',
-        border: '2px solid var(--border-light)',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
-      }}
+      className="bg-white/80 backdrop-blur-lg p-7 rounded-3xl mb-8 border-2 border-[var(--border-light)] shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
     >
-      <h3 style={{
-        marginTop: 0,
-        marginBottom: '24px',
-        fontSize: '22px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        color: 'var(--text-primary)'
-      }}>
-        <span style={{ fontSize: '28px' }}>📝</span>
+      <h3 className="mt-0 mb-6 text-2xl flex items-center gap-2.5 text-[var(--text-primary)]">
+        <span className="text-3xl">📝</span>
         Add New Item
       </h3>
-      
-      <div style={{ marginBottom: '18px' }}>
-        <label style={{
-          display: 'block',
-          marginBottom: '8px',
-          fontSize: '14px',
-          fontWeight: '600',
-          color: 'var(--text-primary)'
-        }}>
+
+      <div className="mb-4">
+        <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
           Item Name *
         </label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            borderRadius: '10px',
-            border: '2px solid var(--border-light)',
-            fontSize: '15px',
-            background: 'var(--card-bg)',
-            color: 'var(--text-primary)',
-            fontWeight: 500
-          }}
+          className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium"
           placeholder="e.g., Milk, Apples, Chicken"
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '18px' }}>
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: 'var(--text-primary)'
-          }}>
+          <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
             Category
           </label>
           <select
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: '10px',
-              border: '2px solid var(--border-light)',
-              fontSize: '15px',
-              background: 'var(--card-bg)',
-              color: 'var(--text-primary)',
-              fontWeight: 500,
-              cursor: 'pointer'
-            }}
+            className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium cursor-pointer"
           >
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
@@ -161,46 +98,22 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
 
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: 'var(--text-primary)'
-          }}>
+          <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
             Quantity & Unit
           </label>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="flex gap-2">
             <input
               type="number"
               min="0.1"
               step="0.1"
               value={formData.quantity}
               onChange={(e) => setFormData({ ...formData, quantity: parseFloat(e.target.value) })}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: '2px solid var(--border-light)',
-                fontSize: '15px',
-                background: 'var(--card-bg)',
-                color: 'var(--text-primary)',
-                fontWeight: 500
-              }}
+              className="flex-1 px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium"
             />
             <select
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: '2px solid var(--border-light)',
-                fontSize: '15px',
-                background: 'var(--card-bg)',
-                color: 'var(--text-primary)',
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
+              className="px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium cursor-pointer"
             >
               {units.map(unit => (
                 <option key={unit} value={unit}>{unit}</option>
@@ -210,15 +123,9 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: 'var(--text-primary)'
-          }}>
+          <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
             Purchase Date
           </label>
           <div>
@@ -232,12 +139,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               wrapperClassName="date-wrapper"
             />
             {formData.purchaseDate && (
-              <div style={{
-                marginTop: 8,
-                fontSize: 12,
-                color: 'var(--text-secondary)',
-                fontWeight: 500
-              }}>
+              <div className="mt-2 text-xs text-[var(--text-secondary)] font-medium">
                 {new Date(formData.purchaseDate).toLocaleDateString('en-US', {
                   year: 'numeric', month: 'short', day: 'numeric'
                 })}
@@ -247,13 +149,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
 
         <div>
-          <label style={{
-            display: 'block',
-            marginBottom: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: 'var(--text-primary)'
-          }}>
+          <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
             Expiration Date *
           </label>
           <div>
@@ -267,12 +163,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               wrapperClassName="date-wrapper"
             />
             {formData.expirationDate && (
-              <div style={{
-                marginTop: 8,
-                fontSize: 12,
-                color: 'var(--text-secondary)',
-                fontWeight: 500
-              }}>
+              <div className="mt-2 text-xs text-[var(--text-secondary)] font-medium">
                 {new Date(formData.expirationDate as Date).toLocaleDateString('en-US', {
                   year: 'numeric', month: 'short', day: 'numeric'
                 })}
@@ -282,38 +173,17 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '12px' }}>
+      <div className="flex gap-3">
         <button
           type="submit"
-          style={{
-            flex: 1,
-            padding: '14px',
-            background: 'linear-gradient(135deg, var(--fresh-mint) 0%, var(--fresh-green) 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '16px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
-          }}
+          className="flex-1 py-3.5 bg-gradient-to-br from-[var(--fresh-mint)] to-[var(--fresh-green)] text-white border-none rounded-xl text-base font-bold cursor-pointer shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
         >
           ✅ Add Item
         </button>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          style={{
-            flex: 1,
-            padding: '14px',
-            background: 'var(--text-muted)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '16px',
-            fontWeight: '700',
-            cursor: 'pointer',
-          }}
+          className="flex-1 py-3.5 bg-[var(--text-muted)] text-white border-none rounded-xl text-base font-bold cursor-pointer"
         >
           Cancel
         </button>

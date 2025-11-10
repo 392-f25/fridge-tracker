@@ -14,62 +14,22 @@ export const ExpirationAlert: React.FC<ExpirationAlertProps> = ({ warnings }) =>
   const otherWarnings = warnings.filter(w => w.severity !== 'critical');
 
   return (
-    <div style={{ marginBottom: '32px' }}>
+    <div className="mb-8">
       {criticalWarnings.length > 0 && (
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-            border: '3px solid #fecaca',
-            borderRadius: '16px',
-            padding: '24px',
-            marginBottom: '16px',
-            boxShadow: '0 4px 16px rgba(239, 68, 68, 0.15)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{
-            position: 'absolute',
-            top: -20,
-            right: -20,
-            width: 100,
-            height: 100,
-            background: 'var(--critical-red)',
-            opacity: 0.1,
-            borderRadius: '50%'
-          }} />
+        <div className="bg-gradient-to-br from-[#fef2f2] to-[#fee2e2] border-[3px] border-[#fecaca] rounded-2xl p-6 mb-4 shadow-[0_4px_16px_rgba(239,68,68,0.15)] relative overflow-hidden">
+          <div className="absolute -top-5 -right-5 w-[100px] h-[100px] bg-[var(--critical-red)] opacity-10 rounded-full" />
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '12px',
-            position: 'relative'
-          }}>
-            <span style={{ fontSize: '32px', marginRight: '12px' }}>🚨</span>
-            <h3 style={{
-              margin: 0,
-              color: '#dc2626',
-              fontSize: '20px',
-              fontWeight: '700',
-              letterSpacing: '-0.02em'
-            }}>
+          <div className="flex items-center mb-3 relative">
+            <span className="text-3xl mr-3">🚨</span>
+            <h3 className="m-0 text-[#dc2626] text-xl font-bold tracking-tight">
               Critical Alerts
             </h3>
           </div>
 
-          <ul style={{
-            margin: '12px 0 0 0',
-            paddingLeft: '24px',
-            color: '#991b1b',
-            position: 'relative'
-          }}>
+          <ul className="m-0 mt-3 pl-6 text-[#991b1b] relative">
             {criticalWarnings.map(warning => (
-              <li key={warning.item.id} style={{
-                marginBottom: '8px',
-                fontSize: '15px',
-                lineHeight: '1.5'
-              }}>
-                <strong style={{ fontWeight: '700' }}>{warning.item.name}</strong>{' '}
+              <li key={warning.item.id} className="mb-2 text-[15px] leading-relaxed">
+                <strong className="font-bold">{warning.item.name}</strong>{' '}
                 {warning.daysUntilExpiration < 0
                   ? `expired ${Math.abs(warning.daysUntilExpiration)} day${Math.abs(warning.daysUntilExpiration) !== 1 ? 's' : ''} ago`
                   : warning.daysUntilExpiration === 0
@@ -82,59 +42,20 @@ export const ExpirationAlert: React.FC<ExpirationAlertProps> = ({ warnings }) =>
       )}
 
       {otherWarnings.length > 0 && (
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
-            border: '3px solid #fde68a',
-            borderRadius: '16px',
-            padding: '24px',
-            boxShadow: '0 4px 16px rgba(245, 158, 11, 0.15)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          <div style={{
-            position: 'absolute',
-            top: -20,
-            right: -20,
-            width: 100,
-            height: 100,
-            background: 'var(--warning-orange)',
-            opacity: 0.1,
-            borderRadius: '50%'
-          }} />
+        <div className="bg-gradient-to-br from-[#fffbeb] to-[#fef3c7] border-[3px] border-[#fde68a] rounded-2xl p-6 shadow-[0_4px_16px_rgba(245,158,11,0.15)] relative overflow-hidden">
+          <div className="absolute -top-5 -right-5 w-[100px] h-[100px] bg-[var(--warning-orange)] opacity-10 rounded-full" />
 
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '12px',
-            position: 'relative'
-          }}>
-            <span style={{ fontSize: '32px', marginRight: '12px' }}>⏰</span>
-            <h3 style={{
-              margin: 0,
-              color: '#d97706',
-              fontSize: '20px',
-              fontWeight: '700',
-              letterSpacing: '-0.02em'
-            }}>
+          <div className="flex items-center mb-3 relative">
+            <span className="text-3xl mr-3">⏰</span>
+            <h3 className="m-0 text-[#d97706] text-xl font-bold tracking-tight">
               Expiring Soon
             </h3>
           </div>
 
-          <ul style={{
-            margin: '12px 0 0 0',
-            paddingLeft: '24px',
-            color: '#92400e',
-            position: 'relative'
-          }}>
+          <ul className="m-0 mt-3 pl-6 text-[#92400e] relative">
             {otherWarnings.map(warning => (
-              <li key={warning.item.id} style={{
-                marginBottom: '8px',
-                fontSize: '15px',
-                lineHeight: '1.5'
-              }}>
-                <strong style={{ fontWeight: '700' }}>{warning.item.name}</strong> expires in {warning.daysUntilExpiration} day
+              <li key={warning.item.id} className="mb-2 text-[15px] leading-relaxed">
+                <strong className="font-bold">{warning.item.name}</strong> expires in {warning.daysUntilExpiration} day
                 {warning.daysUntilExpiration !== 1 ? 's' : ''}
               </li>
             ))}

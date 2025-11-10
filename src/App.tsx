@@ -82,41 +82,15 @@ function App() {
   const suggestedRecipes = useMemo(() => findMatchingRecipesRelaxed(items, recipes), [items, recipes]);
 
   return (
-    <div className="app-container" style={{
-      maxWidth: 1200,
-      margin: '0 auto',
-      padding: '40px 24px',
-      minHeight: '100vh'
-    }}>
-      <header style={{
-        textAlign: 'center',
-        marginBottom: 48,
-        padding: '32px 24px',
-        background: 'rgba(255, 255, 255, 0.7)',
-        backdropFilter: 'blur(10px)',
-        borderRadius: 24,
-        boxShadow: '0 8px 32px rgba(6, 182, 212, 0.1)',
-        border: '2px solid rgba(165, 243, 252, 0.3)'
-      }}>
-        <h1 style={{
-          margin: '0 0 12px 0',
-          fontSize: '3rem',
-          letterSpacing: '-0.03em'
-        }}>
+    <div className="app-container max-w-[1200px] mx-auto px-6 py-10 min-h-screen">
+      <header className="text-center mb-12 p-8 bg-white/70 backdrop-blur-lg rounded-3xl shadow-[0_8px_32px_rgba(6,182,212,0.1)] border-2 border-[rgba(165,243,252,0.3)]">
+        <h1 className="m-0 mb-3 text-5xl tracking-tight">
           What2Eat
         </h1>
-        <div style={{
-          color: 'var(--text-secondary)',
-          fontSize: '1.1rem',
-          fontWeight: 500
-        }}>
+        <div className="text-[var(--text-secondary)] text-lg font-medium">
           Keep your groceries fresh & organized
         </div>
-        <div style={{
-          marginTop: 8,
-          color: 'var(--text-muted)',
-          fontSize: '0.875rem'
-        }}>
+        <div className="mt-2 text-[var(--text-muted)] text-sm">
           All data stored locally on your device
         </div>
       </header>
@@ -126,39 +100,14 @@ function App() {
 
         <AddItemForm onAdd={handleAdd} />
 
-        <section style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 2fr) minmax(320px, 1fr)',
-          gap: 32,
-          alignItems: 'start'
-        }}>
+        <section className="grid grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] gap-8 items-start">
           <div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 20,
-              padding: '0 4px'
-            }}>
-              <h2 style={{
-                fontSize: 24,
-                margin: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10
-              }}>
-                <span style={{ fontSize: 28 }}>🧊</span>
+            <div className="flex items-center justify-between mb-5 px-1">
+              <h2 className="text-2xl m-0 flex items-center gap-2.5">
+                <span className="text-3xl">🧊</span>
                 Your Items
                 {sortedItems.length > 0 && (
-                  <span style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    background: 'linear-gradient(135deg, var(--fresh-cyan), var(--fresh-mint))',
-                    color: 'white',
-                    padding: '4px 12px',
-                    borderRadius: 20,
-                    marginLeft: 8
-                  }}>
+                  <span className="text-sm font-semibold bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--fresh-mint)] text-white px-3 py-1 rounded-full ml-2">
                     {sortedItems.length}
                   </span>
                 )}
@@ -166,26 +115,18 @@ function App() {
             </div>
 
             {sortedItems.length === 0 && (
-              <div style={{
-                padding: 48,
-                background: 'rgba(255, 255, 255, 0.6)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: 16,
-                border: '2px dashed var(--border-medium)',
-                textAlign: 'center',
-                color: 'var(--text-secondary)'
-              }}>
-                <div style={{ fontSize: 64, marginBottom: 16 }}>🥗</div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+              <div className="p-12 bg-white/60 backdrop-blur-lg rounded-2xl border-2 border-dashed border-[var(--border-medium)] text-center text-[var(--text-secondary)]">
+                <div className="text-6xl mb-4">🥗</div>
+                <div className="text-lg font-semibold mb-2">
                   Your fridge is empty
                 </div>
-                <div style={{ color: 'var(--text-muted)' }}>
+                <div className="text-[var(--text-muted)]">
                   Add items to start tracking freshness and get recipe suggestions
                 </div>
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="flex flex-col gap-4">
               {sortedItems.map(item => (
                 <FridgeItemComponent
                   key={item.id}
@@ -197,51 +138,22 @@ function App() {
             </div>
           </div>
 
-          <aside style={{ position: 'sticky', top: 24 }}>
-            <div style={{
-              marginBottom: 24,
-              background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(10px)',
-              padding: 24,
-              borderRadius: 16,
-              border: '2px solid var(--border-light)',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)'
-            }}>
-              <h3 style={{
-                margin: '0 0 16px 0',
-                fontSize: 20,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}>
-                <span style={{ fontSize: 24 }}>🍳</span>
+          <aside className="sticky top-6">
+            <div className="mb-6 bg-white/70 backdrop-blur-lg p-6 rounded-2xl border-2 border-[var(--border-light)] shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
+              <h3 className="m-0 mb-4 text-xl flex items-center gap-2">
+                <span className="text-2xl">🍳</span>
                 Recipe Ideas
               </h3>
 
               {suggestedRecipes.length === 0 ? (
-                <div style={{
-                  padding: 20,
-                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                  borderRadius: 12,
-                  color: '#92400e',
-                  textAlign: 'center',
-                  fontSize: 14
-                }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>👨‍🍳</div>
+                <div className="p-5 bg-gradient-to-br from-[#fef3c7] to-[#fde68a] rounded-xl text-[#92400e] text-center text-sm">
+                  <div className="text-3xl mb-2">👨‍🍳</div>
                   Add ingredients to unlock recipe suggestions
                 </div>
               ) : (
                 <>
                   {suggestedRecipes.length <= 2 && (
-                    <div style={{
-                      marginBottom: 12,
-                      padding: 12,
-                      background: 'var(--card-tertiary)',
-                      borderRadius: 8,
-                      color: 'var(--text-secondary)',
-                      fontSize: 13,
-                      borderLeft: '3px solid var(--fresh-cyan)'
-                    }}>
+                    <div className="mb-3 p-3 bg-[var(--card-tertiary)] rounded-lg text-[var(--text-secondary)] text-xs border-l-[3px] border-[var(--fresh-cyan)]">
                       Showing partial matches based on your ingredients
                     </div>
                   )}
@@ -250,23 +162,9 @@ function App() {
               )}
             </div>
 
-            <div style={{
-              padding: 24,
-              background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(10px)',
-              border: '2px solid var(--border-light)',
-              borderRadius: 16,
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)'
-            }}>
-              <h4 style={{
-                marginTop: 0,
-                marginBottom: 16,
-                fontSize: 16,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}>
-                <span style={{ fontSize: 20 }}>⚡</span>
+            <div className="p-6 bg-white/70 backdrop-blur-lg border-2 border-[var(--border-light)] rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
+              <h4 className="mt-0 mb-4 text-base flex items-center gap-2">
+                <span className="text-xl">⚡</span>
                 Quick Actions
               </h4>
               <button
@@ -277,18 +175,7 @@ function App() {
                   setItems([]);
                 }}
                 disabled={items.length === 0}
-                style={{
-                  width: '100%',
-                  padding: 12,
-                  background: items.length === 0 ? '#cbd5e1' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 10,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: items.length === 0 ? 'not-allowed' : 'pointer',
-                  opacity: items.length === 0 ? 0.5 : 1
-                }}
+                className={`w-full p-3 ${items.length === 0 ? 'bg-[#cbd5e1]' : 'bg-gradient-to-br from-[#ef4444] to-[#dc2626]'} text-white border-none rounded-xl text-sm font-semibold ${items.length === 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               >
                 🗑️ Clear All Items
               </button>

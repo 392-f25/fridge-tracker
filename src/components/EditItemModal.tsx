@@ -38,92 +38,47 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(15, 23, 42, 0.35)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        zIndex: 12000,
-      }}
-    >
+    <div className="fixed inset-0 bg-[rgba(15,23,42,0.35)] flex items-center justify-center p-6 z-[12000]">
       <form
         onSubmit={handleSubmit}
-        style={{
-          width: '100%',
-          maxWidth: 520,
-          background: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: 20,
-          padding: '28px',
-          border: '2px solid var(--border-light)',
-          boxShadow: '0 24px 50px rgba(15, 23, 42, 0.15)',
-        }}
+        className="w-full max-w-[520px] bg-white/95 rounded-3xl p-7 border-2 border-[var(--border-light)] shadow-[0_24px_50px_rgba(15,23,42,0.15)]"
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h3 style={{ margin: 0, fontSize: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 26 }}>✏️</span>
+        <div className="flex justify-between items-center mb-5">
+          <h3 className="m-0 text-2xl flex items-center gap-2.5">
+            <span className="text-3xl">✏️</span>
             Edit Item
           </h3>
           <button
             type="button"
             onClick={onCancel}
-            style={{
-              background: 'transparent',
-              color: 'var(--text-secondary)',
-              fontSize: 14,
-              fontWeight: 600,
-              padding: '6px 10px',
-              boxShadow: 'none',
-            }}
+            className="bg-transparent text-[var(--text-secondary)] text-sm font-semibold px-2.5 py-1.5 shadow-none"
           >
             ✖ Close
           </button>
         </div>
 
-        <div style={{ marginBottom: 18 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
             Item Name *
           </label>
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: '10px',
-              border: '2px solid var(--border-light)',
-              fontSize: 15,
-              background: 'var(--card-bg)',
-              color: 'var(--text-primary)',
-              fontWeight: 500,
-            }}
+            className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium"
             placeholder="e.g., Milk, Apples, Chicken"
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 18 }}>
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+            <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
               Category
             </label>
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: '2px solid var(--border-light)',
-                fontSize: 15,
-                background: 'var(--card-bg)',
-                color: 'var(--text-primary)',
-                fontWeight: 500,
-                cursor: 'pointer',
-              }}
+              className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium cursor-pointer"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -132,40 +87,22 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+            <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
               Quantity & Unit
             </label>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="flex gap-2">
               <input
                 type="number"
                 min="0.1"
                 step="0.1"
                 value={formData.quantity}
                 onChange={(e) => setFormData({ ...formData, quantity: parseFloat(e.target.value) })}
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  border: '2px solid var(--border-light)',
-                  fontSize: 15,
-                  background: 'var(--card-bg)',
-                  color: 'var(--text-primary)',
-                  fontWeight: 500,
-                }}
+                className="flex-1 px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium"
               />
               <select
                 value={formData.unit}
                 onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                style={{
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  border: '2px solid var(--border-light)',
-                  fontSize: 15,
-                  background: 'var(--card-bg)',
-                  color: 'var(--text-primary)',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                }}
+                className="px-4 py-3 rounded-xl border-2 border-[var(--border-light)] text-[15px] bg-[var(--card-bg)] text-[var(--text-primary)] font-medium cursor-pointer"
               >
                 {units.map(unit => (
                   <option key={unit} value={unit}>{unit}</option>
@@ -175,9 +112,9 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+        <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+            <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
               Purchase Date
             </label>
             <DatePicker
@@ -192,7 +129,7 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+            <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
               Expiration Date *
             </label>
             <DatePicker
@@ -207,38 +144,17 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="flex gap-3">
           <button
             type="submit"
-            style={{
-              flex: 1,
-              padding: '14px',
-              background: 'linear-gradient(135deg, var(--fresh-mint) 0%, var(--fresh-green) 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-            }}
+            className="flex-1 py-3.5 bg-gradient-to-br from-[var(--fresh-mint)] to-[var(--fresh-green)] text-white border-none rounded-xl text-base font-bold cursor-pointer shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
           >
             💾 Save Changes
           </button>
           <button
             type="button"
             onClick={onCancel}
-            style={{
-              flex: 1,
-              padding: '14px',
-              background: 'var(--text-muted)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
+            className="flex-1 py-3.5 bg-[var(--text-muted)] text-white border-none rounded-xl text-base font-bold cursor-pointer"
           >
             Cancel
           </button>

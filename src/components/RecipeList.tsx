@@ -10,18 +10,9 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
 
   if (recipes.length === 0) {
     return (
-      <div
-        style={{
-          background: 'linear-gradient(135deg, var(--card-secondary) 0%, var(--card-tertiary) 100%)',
-          padding: '28px',
-          borderRadius: '12px',
-          textAlign: 'center',
-          color: 'var(--text-secondary)',
-          border: '2px solid var(--border-light)'
-        }}
-      >
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>🍽️</div>
-        <p style={{ margin: 0, fontWeight: 500, fontSize: '14px' }}>
+      <div className="bg-gradient-to-br from-[var(--card-secondary)] to-[var(--card-tertiary)] p-7 rounded-xl text-center text-[var(--text-secondary)] border-2 border-[var(--border-light)]">
+        <div className="text-5xl mb-3">🍽️</div>
+        <p className="m-0 font-medium text-sm">
           Add items to your fridge to see recipe suggestions based on your ingredients!
         </p>
       </div>
@@ -30,78 +21,35 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
 
   return (
     <div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex flex-col gap-3">
         {recipes.map(recipe => (
           <div
             key={recipe.id}
-            style={{
-              background: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(10px)',
-              border: '2px solid var(--border-light)',
-              borderRadius: '14px',
-              padding: '18px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-              transition: 'all 0.2s ease'
-            }}
+            className="bg-white/90 backdrop-blur-lg border-2 border-[var(--border-light)] rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-200"
           >
-            <div style={{ marginBottom: '12px' }}>
-              <h3 style={{
-                margin: '0 0 10px 0',
-                fontSize: '17px',
-                fontWeight: '700',
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.01em'
-              }}>
+            <div className="mb-3">
+              <h3 className="m-0 mb-2.5 text-lg font-bold text-[var(--text-primary)] tracking-tight">
                 {recipe.name}
               </h3>
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-                color: 'var(--text-secondary)',
-                fontSize: '13px',
-                fontWeight: 500
-              }}>
-                <span style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
+              <div className="flex gap-3 text-[var(--text-secondary)] text-xs font-medium">
+                <span className="flex items-center gap-1">
                   ⏱️ {recipe.prepTime} min
                 </span>
-                <span style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
+                <span className="flex items-center gap-1">
                   👥 {recipe.servings}
                 </span>
               </div>
             </div>
 
-            <div style={{ marginBottom: '14px' }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: '700',
-                marginBottom: '8px',
-                color: 'var(--text-secondary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
+            <div className="mb-3">
+              <div className="text-xs font-bold mb-2 text-[var(--text-secondary)] uppercase tracking-wider">
                 Ingredients
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <div className="flex flex-wrap gap-1.5">
                 {recipe.ingredients.map((ingredient, idx) => (
                   <span
                     key={idx}
-                    style={{
-                      background: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)',
-                      color: '#0e7490',
-                      padding: '4px 10px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      border: '1px solid #a5f3fc'
-                    }}
+                    className="bg-gradient-to-br from-[#ecfeff] to-[#cffafe] text-[#0e7490] px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#a5f3fc]"
                   >
                     {ingredient}
                   </span>
@@ -113,54 +61,19 @@ export const RecipeList: React.FC<RecipeListProps> = ({ recipes }) => {
               onClick={() =>
                 setExpandedRecipe(expandedRecipe === recipe.id ? null : recipe.id)
               }
-              style={{
-                background: expandedRecipe === recipe.id
-                  ? 'var(--text-muted)'
-                  : 'linear-gradient(135deg, var(--fresh-cyan) 0%, var(--cool-sky) 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 14px',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: '700',
-                boxShadow: '0 2px 6px rgba(6, 182, 212, 0.2)',
-                transition: 'all 0.2s ease'
-              }}
+              className={`${expandedRecipe === recipe.id ? 'bg-[var(--text-muted)]' : 'bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--cool-sky)]'} text-white border-none rounded-lg px-3.5 py-2 cursor-pointer text-xs font-bold shadow-[0_2px_6px_rgba(6,182,212,0.2)] transition-all duration-200`}
             >
               {expandedRecipe === recipe.id ? '🔼 Hide Instructions' : '🔽 Show Instructions'}
             </button>
 
             {expandedRecipe === recipe.id && (
-              <div
-                style={{
-                  marginTop: '16px',
-                  paddingTop: '16px',
-                  borderTop: '2px solid var(--border-light)',
-                }}
-              >
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  marginBottom: '10px',
-                  color: 'var(--text-secondary)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}>
+              <div className="mt-4 pt-4 border-t-2 border-[var(--border-light)]">
+                <div className="text-xs font-bold mb-2.5 text-[var(--text-secondary)] uppercase tracking-wider">
                   Instructions
                 </div>
-                <ol style={{
-                  margin: 0,
-                  paddingLeft: '20px',
-                  color: 'var(--text-secondary)'
-                }}>
+                <ol className="m-0 pl-5 text-[var(--text-secondary)]">
                   {recipe.instructions.map((instruction, idx) => (
-                    <li key={idx} style={{
-                      marginBottom: '10px',
-                      fontSize: '13px',
-                      lineHeight: '1.6',
-                      fontWeight: 500
-                    }}>
+                    <li key={idx} className="mb-2.5 text-xs leading-relaxed font-medium">
                       {instruction}
                     </li>
                   ))}
