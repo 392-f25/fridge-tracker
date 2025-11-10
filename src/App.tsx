@@ -8,7 +8,7 @@ import { ExpirationAlert } from './components/ExpirationAlert';
 import { RecipeList } from './components/RecipeList';
 import { EditItemModal } from './components/EditItemModal';
 import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
-import { getExpirationWarnings, calculateDaysUntilExpiration } from './utils/dateUtils';
+import { getExpirationWarnings, calculateDaysUntilExpiration, isExpired } from './utils/dateUtils';
 import { Banner } from './components/banner';
 import { useAuthState, signInWithGoogle } from './utils/firebase';
 
@@ -191,17 +191,22 @@ function App() {
                     <span className="text-xl">⚡</span>
                     Quick Actions
                   </h4>
+                  {
+                    // Only clear expired items
+                  }
                   <button
                     onClick={() => {
-                      if (items.length > 0 && !window.confirm('Are you sure you want to clear all items?')) {
+                      const expired = items.filter(i => isExpired(i.expirationDate));
+                      if (expired.length === 0) return;
+                      if (!window.confirm(`Are you sure you want to remove ${expired.length} expired item${expired.length > 1 ? 's' : ''}?`)) {
                         return;
                       }
-                      setItems([]);
+                      setItems(prev => prev.filter(i => !isExpired(i.expirationDate)));
                     }}
-                    disabled={items.length === 0}
-                    className={`w-full p-3 ${items.length === 0 ? 'bg-[#cbd5e1]' : 'bg-gradient-to-br from-[#ef4444] to-[#dc2626]'} text-white border-none rounded-xl text-sm font-semibold ${items.length === 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
+                    disabled={items.filter(i => isExpired(i.expirationDate)).length === 0}
+                    className={`w-full p-3 ${items.filter(i => isExpired(i.expirationDate)).length === 0 ? 'bg-[#cbd5e1]' : 'bg-gradient-to-br from-[#ef4444] to-[#dc2626]'} text-white border-none rounded-xl text-sm font-semibold ${items.filter(i => isExpired(i.expirationDate)).length === 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
                   >
-                    🗑️ Clear All Items
+                    🗑️ Clear Expired Items
                   </button>
                 </div>
               </aside>
