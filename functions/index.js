@@ -1,32 +1,129 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const OpenAI = require('openai');
+const axios = require('axios');
 
-const {setGlobalOptions} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/https");
-const logger = require("firebase-functions/logger");
+admin.initializeApp();
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+exports.processReceipt = functions
+  .runWith({ timeoutSeconds: 60, memory: '512MB' })
+  .database.ref('/receipts/queue/{receiptId}')
+  .onCreate(async (snapshot, context) => {
+    const receiptId = context.params.receiptId;
+    const data = snapshot.val();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+    if (!data.imageUrl || !data.userId) {
+      console.error('Missing required fields');
+      return null;
+    }
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+    try {
+      // Download image as base64
+      const imageResponse = await axios.get(data.imageUrl, {
+        responseType: 'arraybuffer'
+      });
+      const base64Image = Buffer.from(imageResponse.data).toString('base64');
+
+      // Process with OpenAI Vision
+      const openai = new OpenAI({
+        apiKey: functions.config().openai.api_key
+      });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `Extract grocery items from receipt. Return ONLY valid JSON in this exact format:
+            {
+              "items": [
+                {
+                  "name": "item name",
+                  "quantity": 1,
+                  "category": "produce/dairy/meat/frozen/pantry/bakery/other",
+                  "expirationDays": 7
+                }
+              ],
+              "store": "store name or null",
+              "date": "YYYY-MM-DD or null"
+            }
+
+            Expiration: produce(3-7), dairy(7-14), meat(3-5), frozen(90), pantry(180), bakery(3-5), other(30)`
+          },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: "Extract items from this receipt:" },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64Image}`,
+                  detail: "low"
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.2,
+        response_format: { type: "json_object" }
+      });
+
+      // Extract and parse JSON response (strip markdown if present)
+      let responseContent = completion.choices[0].message.content.trim();
+      console.log('Raw OpenAI response:', responseContent);
+
+      // Remove markdown code blocks if present
+      if (responseContent.startsWith('```')) {
+        responseContent = responseContent
+          .replace(/^```(?:json)?\n?/, '')  // Remove opening ```json
+          .replace(/\n?```$/, '');           // Remove closing ```
+        console.log('Cleaned response:', responseContent);
+      }
+
+      const result = JSON.parse(responseContent);
+
+      // Save items to database
+      const db = admin.database();
+      const updates = {};
+
+      result.items.forEach(item => {
+        const itemId = db.ref().push().key;
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + item.expirationDays);
+
+        updates[`/users/${data.userId}/fridgeItems/${itemId}`] = {
+          name: item.name,
+          quantity: item.quantity,
+          category: item.category,
+          expirationDate: expirationDate.toISOString(),
+          addedDate: new Date().toISOString(),
+          receiptId: receiptId
+        };
+      });
+
+      await db.ref().update(updates);
+
+      // Move to processed
+      await db.ref(`/receipts/queue/${receiptId}`).remove();
+      await db.ref(`/receipts/processed/${receiptId}`).set({
+        userId: data.userId,
+        itemCount: result.items.length,
+        store: result.store,
+        date: result.date,
+        timestamp: admin.database.ServerValue.TIMESTAMP
+      });
+
+      return null;
+
+    } catch (error) {
+      console.error('Error:', error);
+      await admin.database().ref(`/receipts/queue/${receiptId}`).remove();
+      await admin.database().ref(`/receipts/failed/${receiptId}`).set({
+        userId: data.userId,
+        error: error.message,
+        timestamp: admin.database.ServerValue.TIMESTAMP
+      });
+      return null;
+    }
+  });

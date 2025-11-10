@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Receipt images: users can only upload/read their own receipts
+    match /receipts/{userId}/{filename} {
+      // Allow write if authenticated and userId matches auth.uid
+      // File must be an image and under 10MB
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+
+      // Allow read if authenticated and userId matches auth.uid
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+    }
+  }
+}
