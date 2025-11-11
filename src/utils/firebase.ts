@@ -3,7 +3,9 @@ import { flushSync } from 'react-dom'
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type NextOrObserver, type User} from 'firebase/auth';
 import { getDatabase, ref, push, set, update, get } from 'firebase/database';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCb2VEZ20PgQEzF2niZxLn-ik1QilHS87k",
@@ -27,6 +29,29 @@ const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 export const database = getDatabase(firebase);
 export const storage = getStorage(firebase);
+const functionsInstance = getFunctions(firebase, 'us-central1');
+
+import { connectFunctionsEmulator } from 'firebase/functions';
+
+if (import.meta.env.DEV) {
+  connectFunctionsEmulator(functionsInstance, '127.0.0.1', 5001);
+}
+
+
+export interface TestEmailResponse {
+  status: 'sent' | 'skipped';
+  counts?: {
+    expired: number;
+    expiring: number;
+  };
+  reason?: 'NO_USER' | 'NO_EMAIL' | 'NO_ITEMS';
+}
+
+export const triggerTestExpirationEmail = async (): Promise<TestEmailResponse> => {
+  const callable = httpsCallable<void, TestEmailResponse>(functionsInstance, 'sendTestExpirationEmail');
+  const result = await callable();
+  return result.data;
+};
 
 console.log('[Firebase] Firebase initialized successfully');
 console.log('[Firebase] Database instance:', database);

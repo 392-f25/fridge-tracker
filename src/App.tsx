@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import type { FridgeItem } from './types';
 import { AddItemForm } from './components/AddItemForm';
@@ -12,7 +12,7 @@ import ReceiptStatus from './components/ReceiptStatus';
 import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
 import { getExpirationWarnings, calculateDaysUntilExpiration, isExpired } from './utils/dateUtils';
 import { Banner } from './components/banner';
-import { useAuthState, signInWithGoogle, getFridgeItemsRef, database } from './utils/firebase';
+import { useAuthState, signInWithGoogle, getFridgeItemsRef, database, triggerTestExpirationEmail } from './utils/firebase';
 import { onValue, push, set, remove, update, ref } from 'firebase/database';
 
 function App() {
@@ -20,7 +20,28 @@ function App() {
   const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [editingItem, setEditingItem] = useState<FridgeItem | null>(null);
   const [uploadNotification, setUploadNotification] = useState<string | null>(null);
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const { user, isAuthenticated, isInitialLoading } = useAuthState();
+  const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const showNotification = (message: string) => {
+    setUploadNotification(message);
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+    notificationTimeoutRef.current = setTimeout(() => {
+      setUploadNotification(null);
+      notificationTimeoutRef.current = null;
+    }, 5000);
+  };
 
   // Firebase listener for fridge items
   useEffect(() => {
@@ -92,13 +113,38 @@ function App() {
   };
 
   const handleUploadComplete = (receiptId: string) => {
-    setUploadNotification(`Receipt ${receiptId} uploaded! Items will appear shortly.`);
-    setTimeout(() => setUploadNotification(null), 5000);
+    showNotification(`Receipt ${receiptId} uploaded! Items will appear shortly.`);
   };
 
   const handleUploadError = (error: string) => {
-    setUploadNotification(`Error: ${error}`);
-    setTimeout(() => setUploadNotification(null), 5000);
+    showNotification(`Error: ${error}`);
+  };
+
+  const handleTestEmail = async () => {
+    if (!user) {
+      showNotification('Please sign in to send a test email.');
+      return;
+    }
+
+    setIsSendingTestEmail(true);
+    try {
+      const result = await triggerTestExpirationEmail();
+
+      if (result.status === 'sent') {
+        showNotification(`Email sent! ${result.counts?.expiring ?? 0} expiring / ${result.counts?.expired ?? 0} expired items.`);
+      } else if (result.reason === 'NO_ITEMS') {
+        showNotification('All clear — nothing is expiring or expired.');
+      } else if (result.reason === 'NO_EMAIL') {
+        showNotification('Cannot send email because your account has no email address.');
+      } else {
+        showNotification('Test email skipped.');
+      }
+    } catch (error) {
+      console.error('[handleTestEmail] Failed to send test email', error);
+      showNotification('Unable to send the test email right now.');
+    } finally {
+      setIsSendingTestEmail(false);
+    }
   };
 
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
@@ -269,6 +315,17 @@ function App() {
                     className={`w-full p-3 ${items.filter(i => isExpired(i.expirationDate)).length === 0 ? 'bg-[#cbd5e1]' : 'bg-gradient-to-br from-[#ef4444] to-[#dc2626]'} text-white border-none rounded-xl text-sm font-semibold ${items.filter(i => isExpired(i.expirationDate)).length === 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
                   >
                     🗑️ Clear Expired Items
+                  </button>
+                  <button
+                    onClick={handleTestEmail}
+                    disabled={isSendingTestEmail}
+                    className={`w-full mt-3 p-3 rounded-xl text-sm font-semibold ${
+                      isSendingTestEmail
+                        ? 'bg-[#cbd5e1] cursor-wait text-white opacity-80'
+                        : 'bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--fresh-mint)] text-white cursor-pointer'
+                    }`}
+                  >
+                    {isSendingTestEmail ? 'Sending test email…' : '📧 Send Test Email'}
                   </button>
                 </div>
               </aside>

@@ -2,8 +2,172 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const OpenAI = require('openai');
 const axios = require('axios');
+const emailjs = require('@emailjs/nodejs');
 
-admin.initializeApp();
+if (process.env.FUNCTIONS_EMULATOR) {
+  delete process.env.FIREBASE_DATABASE_EMULATOR_HOST;
+}
+
+admin.initializeApp({
+  projectId: 'when2eat-fb846',
+  databaseURL: 'https://when2eat-fb846-default-rtdb.firebaseio.com'
+});
+
+
+
+const emailjsConfig = functions.config().emailjs || {};
+const hasEmailJsConfig = Boolean(
+  emailjsConfig.service_id &&
+  emailjsConfig.template_id &&
+  emailjsConfig.public_key &&
+  emailjsConfig.private_key
+);
+
+const toStartOfDay = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const calculateDaysUntilExpiration = (isoDate) => {
+  const today = toStartOfDay(new Date());
+  const expiry = toStartOfDay(isoDate);
+  if (!today || !expiry) return null;
+  const diff = expiry.getTime() - today.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+};
+
+const formatDaysText = (days) => {
+  if (days === null || days === undefined) return 'Unknown expiration';
+  if (days < 0) {
+    const value = Math.abs(days);
+    return `Expired ${value} day${value === 1 ? '' : 's'} ago`;
+  }
+  if (days === 0) return 'Expires today';
+  if (days === 1) return 'Expires tomorrow';
+  return `Expires in ${days} days`;
+};
+
+const formatItemLine = (item) => {
+  return `• ${item.name || 'Unnamed item'} (${item.category || 'uncategorized'}) - ${formatDaysText(item.daysUntilExpiration)}`;
+};
+
+const formatItemsList = (items) => (
+  items.length ? items.map(formatItemLine).join('\n') : 'None 🎉'
+);
+
+const mapSnapshotToItems = (items = {}) => {
+  return Object.entries(items).map(([id, value]) => ({
+    id,
+    name: value.name,
+    category: value.category,
+    quantity: value.quantity,
+    unit: value.unit,
+    expirationDate: value.expirationDate,
+  }));
+};
+
+const categorizeItemsBySeverity = (items) => {
+  const expired = [];
+  const expiringSoon = [];
+
+  items.forEach((item) => {
+    const days = calculateDaysUntilExpiration(item.expirationDate);
+    if (days === null) return;
+
+    const enhancedItem = { ...item, daysUntilExpiration: days };
+    if (days < 0) {
+      expired.push(enhancedItem);
+    } else if (days <= 3) {
+      expiringSoon.push(enhancedItem);
+    }
+  });
+
+  return {
+    expired,
+    expiringSoon,
+    total: expired.length + expiringSoon.length,
+  };
+};
+
+const buildTemplateParams = (userProfile, expired, expiringSoon) => ({
+  to_email: userProfile.email,
+  to_name: userProfile.displayName || userProfile.email,
+  summary_date: new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  }),
+  expired_count: expired.length,
+  expiring_count: expiringSoon.length,
+  expired_items: formatItemsList(expired),
+  expiring_items: formatItemsList(expiringSoon),
+});
+
+const sendEmailJsMessage = async (templateParams) => {
+  if (!hasEmailJsConfig) {
+    throw new Error('EMAILJS_CONFIG_MISSING');
+  }
+
+  await emailjs.send(
+    emailjsConfig.service_id,
+    emailjsConfig.template_id,
+    templateParams,
+    {
+      publicKey: emailjsConfig.public_key,
+      privateKey: emailjsConfig.private_key,
+    }
+  );
+};
+
+const sendExpirationEmailForUser = async (userId, cachedUserRecord = null) => {
+  const db = admin.database();
+  let userRecord = cachedUserRecord;
+
+  if (!userRecord) {
+    const snapshot = await db.ref(`users/${userId}`).get();
+    if (!snapshot.exists()) {
+      return { status: 'skipped', reason: 'NO_USER' };
+    }
+    userRecord = snapshot.val();
+  }
+
+  const { fridgeItems = {}, ...userProfile } = userRecord;
+  console.log({fridgeItems});
+
+  if (!userProfile.email) {
+    return { status: 'skipped', reason: 'NO_EMAIL' };
+  }
+
+  const categorized = categorizeItemsBySeverity(mapSnapshotToItems(fridgeItems));
+
+  if (categorized.total === 0) {
+    return { status: 'skipped', reason: 'NO_ITEMS' };
+  }
+
+  await sendEmailJsMessage(
+    buildTemplateParams(userProfile, categorized.expired, categorized.expiringSoon)
+  );
+
+  await db.ref(`users/${userId}/notifications`).update({
+  lastExpirationEmailAt: Date.now(),
+  lastExpirationEmailCounts: {
+    expired: categorized.expired.length,
+    expiring: categorized.expiringSoon.length,
+  },
+});
+
+
+  return {
+    status: 'sent',
+    counts: {
+      expired: categorized.expired.length,
+      expiring: categorized.expiringSoon.length,
+    },
+  };
+};
 
 exports.processReceipt = functions
   .runWith({ timeoutSeconds: 60, memory: '512MB' })
@@ -127,3 +291,58 @@ exports.processReceipt = functions
       return null;
     }
   });
+
+exports.sendDailyExpirationEmails = functions.pubsub
+  .schedule('00 18 * * *')
+  .timeZone('America/Chicago')
+  .onRun(async () => {
+    if (!hasEmailJsConfig) {
+      console.warn('[sendDailyExpirationEmails] EmailJS config missing; skipping run');
+      return null;
+    }
+
+    const usersSnapshot = await admin.database().ref('users').get();
+
+    if (!usersSnapshot.exists()) {
+      console.log('[sendDailyExpirationEmails] No users found');
+      return null;
+    }
+
+    const tasks = [];
+
+    usersSnapshot.forEach((userSnapshot) => {
+      const userId = userSnapshot.key;
+      const userData = userSnapshot.val();
+
+      tasks.push(
+        sendExpirationEmailForUser(userId, userData)
+          .then((result) => {
+            console.log(`[sendDailyExpirationEmails] Processed ${userId}: ${result.status}`, result.reason || result.counts);
+          })
+          .catch((error) => {
+            console.error(`[sendDailyExpirationEmails] Failed for ${userId}`, error);
+          })
+      );
+    });
+
+    await Promise.all(tasks);
+    return null;
+  });
+
+exports.sendTestExpirationEmail = functions.https.onCall(async (_data, context) => {
+  if (!context.auth || !context.auth.uid) {
+    throw new functions.https.HttpsError('unauthenticated', 'You must be signed in to request a test email.');
+  }
+
+  if (!hasEmailJsConfig) {
+    throw new functions.https.HttpsError('failed-precondition', 'Email notifications are not configured.');
+  }
+
+  try {
+    const result = await sendExpirationEmailForUser(context.auth.uid);
+    return result;
+  } catch (error) {
+    console.error('[sendTestExpirationEmail] Failed to send test email', error);
+    throw new functions.https.HttpsError('internal', 'Unable to send test email at this time.');
+  }
+});
