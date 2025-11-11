@@ -7,59 +7,98 @@ import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
 import { RecipeList } from './components/RecipeList';
 import { EditItemModal } from './components/EditItemModal';
+import ReceiptUpload from './components/ReceiptUpload';
+import ReceiptStatus from './components/ReceiptStatus';
 import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
 import { getExpirationWarnings, calculateDaysUntilExpiration, isExpired } from './utils/dateUtils';
 import { Banner } from './components/banner';
-import { useAuthState, signInWithGoogle } from './utils/firebase';
-
-const STORAGE_KEY = 'fridge_items_v1';
-
-const loadItems = (): FridgeItem[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as any[];
-    return parsed.map(p => ({
-      ...p,
-      purchaseDate: new Date(p.purchaseDate),
-      expirationDate: new Date(p.expirationDate),
-    }));
-  } catch (e) {
-    console.warn('Failed to load fridge items from localStorage', e);
-    return [];
-  }
-};
-
-const saveItems = (items: FridgeItem[]) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch (e) {
-    console.warn('Failed to save fridge items to localStorage', e);
-  }
-};
+import { useAuthState, signInWithGoogle, getFridgeItemsRef, database } from './utils/firebase';
+import { onValue, push, set, remove, update, ref } from 'firebase/database';
 
 function App() {
-  const [items, setItems] = useState<FridgeItem[]>(() => loadItems());
+  const [items, setItems] = useState<FridgeItem[]>([]);
+  const [isLoadingItems, setIsLoadingItems] = useState(true);
   const [editingItem, setEditingItem] = useState<FridgeItem | null>(null);
+  const [uploadNotification, setUploadNotification] = useState<string | null>(null);
+  const { user, isAuthenticated, isInitialLoading } = useAuthState();
 
+  // Firebase listener for fridge items
   useEffect(() => {
-    saveItems(items);
-  }, [items]);
+    if (!user) {
+      setItems([]);
+      setIsLoadingItems(false);
+      return;
+    }
 
-  const handleAdd = (item: Omit<FridgeItem, 'id'>) => {
-    const newItem: FridgeItem = { ...item, id: Date.now().toString() };
-    setItems(prev => [newItem, ...prev]);
+    const itemsRef = getFridgeItemsRef(user.uid);
+
+    const unsubscribe = onValue(itemsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const itemsArray = Object.entries(data).map(([id, item]: [string, any]) => ({
+          id,
+          name: item.name,
+          category: item.category,
+          quantity: item.quantity,
+          unit: item.unit || 'unit',
+          purchaseDate: new Date(item.addedDate),
+          expirationDate: new Date(item.expirationDate),
+          imageUrl: item.imageUrl,
+          receiptId: item.receiptId
+        }));
+        setItems(itemsArray);
+      } else {
+        setItems([]);
+      }
+      setIsLoadingItems(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleAdd = async (item: Omit<FridgeItem, 'id'>) => {
+    if (!user) return;
+
+    const itemsRef = getFridgeItemsRef(user.uid);
+    const newItemRef = push(itemsRef);
+
+    await set(newItemRef, {
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity,
+      unit: item.unit,
+      addedDate: item.purchaseDate.toISOString(),
+      expirationDate: item.expirationDate.toISOString(),
+      imageUrl: item.imageUrl || null
+    });
   };
 
-  const handleDelete = (id: string) => {
-    setItems(prev => prev.filter(i => i.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!user) return;
+    await remove(ref(database, `users/${user.uid}/fridgeItems/${id}`));
   };
 
-  const handleUpdate = (updatedItem: FridgeItem) => {
-    setItems(prev =>
-      prev.map(item => (item.id === updatedItem.id ? updatedItem : item))
-    );
+  const handleUpdate = async (updatedItem: FridgeItem) => {
+    if (!user) return;
+    await update(ref(database, `users/${user.uid}/fridgeItems/${updatedItem.id}`), {
+      name: updatedItem.name,
+      category: updatedItem.category,
+      quantity: updatedItem.quantity,
+      unit: updatedItem.unit,
+      expirationDate: updatedItem.expirationDate.toISOString(),
+      addedDate: updatedItem.purchaseDate.toISOString()
+    });
     setEditingItem(null);
+  };
+
+  const handleUploadComplete = (receiptId: string) => {
+    setUploadNotification(`Receipt ${receiptId} uploaded! Items will appear shortly.`);
+    setTimeout(() => setUploadNotification(null), 5000);
+  };
+
+  const handleUploadError = (error: string) => {
+    setUploadNotification(`Error: ${error}`);
+    setTimeout(() => setUploadNotification(null), 5000);
   };
 
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
@@ -83,11 +122,17 @@ function App() {
   const recipes = useMemo(() => getMockRecipes(), []);
   const suggestedRecipes = useMemo(() => findMatchingRecipesRelaxed(items, recipes), [items, recipes]);
 
-  const { isAuthenticated, isInitialLoading } = useAuthState();
-
   return (
     <div className="app-container max-w-[1200px] mx-auto px-6 py-10 min-h-screen">
       <Banner />
+
+      {/* Notification Toast */}
+      {uploadNotification && (
+        <div className="fixed top-20 right-6 bg-white/95 backdrop-blur-lg rounded-xl p-4 shadow-lg z-50 max-w-md animate-fade-in">
+          <p className="text-[#0f172a]">{uploadNotification}</p>
+        </div>
+      )}
+
       <header className="text-center mb-12 p-8 bg-white/70 backdrop-blur-lg rounded-3xl shadow-[0_8px_32px_rgba(6,182,212,0.1)] border-2 border-[rgba(165,243,252,0.3)]">
         <h1 className="m-0 mb-3 text-5xl tracking-tight">
           What2Eat
@@ -96,7 +141,7 @@ function App() {
           Keep your groceries fresh & organized
         </div>
         <div className="mt-2 text-[var(--text-muted)] text-sm">
-          All data stored locally on your device
+          Track your fridge items and get recipe suggestions
         </div>
       </header>
 
@@ -138,7 +183,11 @@ function App() {
                   </h2>
                 </div>
 
-                {sortedItems.length === 0 && (
+                {isLoadingItems ? (
+                  <div className="text-center py-12 text-[#94a3b8]">
+                    Loading items...
+                  </div>
+                ) : sortedItems.length === 0 ? (
                   <div className="p-12 bg-white/60 backdrop-blur-lg rounded-2xl border-2 border-dashed border-(--border-medium) text-center text-(--text-secondary)">
                     <div className="text-6xl mb-4">🥗</div>
                     <div className="text-lg font-semibold mb-2">
@@ -148,22 +197,32 @@ function App() {
                       Add items to start tracking freshness and get recipe suggestions
                     </div>
                   </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {sortedItems.map(item => (
+                      <FridgeItemComponent
+                        key={item.id}
+                        item={item}
+                        onDelete={handleDelete}
+                        onEdit={(selected) => setEditingItem(selected)}
+                      />
+                    ))}
+                  </div>
                 )}
-
-                <div className="flex flex-col gap-4">
-                  {sortedItems.map(item => (
-                    <FridgeItemComponent
-                      key={item.id}
-                      item={item}
-                      onDelete={handleDelete}
-                      onEdit={(selected) => setEditingItem(selected)}
-                    />
-                  ))}
-                </div>
               </div>
 
-              <aside className="sticky top-6">
-                <div className="mb-6 bg-white/70 backdrop-blur-lg p-6 rounded-2xl border-2 border-(--border-light) shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
+              <aside className="sticky top-6 space-y-6">
+                {/* Receipt Upload Section */}
+                <ReceiptUpload
+                  onUploadComplete={handleUploadComplete}
+                  onUploadError={handleUploadError}
+                />
+
+                {/* Receipt Status Section */}
+                <ReceiptStatus />
+
+                {/* Recipe Ideas Section */}
+                <div className="bg-white/70 backdrop-blur-lg p-6 rounded-2xl border-2 border-(--border-light) shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
                   <h3 className="m-0 mb-4 text-xl flex items-center gap-2">
                     <span className="text-2xl">🍳</span>
                     Recipe Ideas
@@ -195,13 +254,16 @@ function App() {
                     // Only clear expired items
                   }
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       const expired = items.filter(i => isExpired(i.expirationDate));
                       if (expired.length === 0) return;
                       if (!window.confirm(`Are you sure you want to remove ${expired.length} expired item${expired.length > 1 ? 's' : ''}?`)) {
                         return;
                       }
-                      setItems(prev => prev.filter(i => !isExpired(i.expirationDate)));
+                      // Delete all expired items from Firebase
+                      for (const item of expired) {
+                        await handleDelete(item.id);
+                      }
                     }}
                     disabled={items.filter(i => isExpired(i.expirationDate)).length === 0}
                     className={`w-full p-3 ${items.filter(i => isExpired(i.expirationDate)).length === 0 ? 'bg-[#cbd5e1]' : 'bg-gradient-to-br from-[#ef4444] to-[#dc2626]'} text-white border-none rounded-xl text-sm font-semibold ${items.filter(i => isExpired(i.expirationDate)).length === 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
