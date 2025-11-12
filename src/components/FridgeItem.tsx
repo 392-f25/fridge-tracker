@@ -6,9 +6,10 @@ interface FridgeItemProps {
   item: FridgeItemType;
   onDelete: (id: string) => void;
   onEdit: (item: FridgeItemType) => void;
+  onAddToShoppingList: (item: FridgeItemType) => void;
 }
 
-export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete, onEdit }) => {
+export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete, onEdit, onAddToShoppingList }) => {
   const daysUntilExpiration = calculateDaysUntilExpiration(item.expirationDate);
   const severity = getExpirationSeverity(daysUntilExpiration);
 
@@ -85,6 +86,13 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete,
         </div>
 
         <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => onAddToShoppingList(item)}
+            className="bg-gradient-to-br from-[#f59e0b] to-[#d97706] text-white border-none rounded-xl px-4 py-2.5 cursor-pointer text-sm font-bold shadow-[0_2px_8px_rgba(245,158,11,0.3)] transition-all duration-200 whitespace-nowrap hover:shadow-[0_4px_12px_rgba(245,158,11,0.4)]"
+            aria-label={`Add ${item.name} to shopping list`}
+          >
+            🛒 Add to List
+          </button>
           <button
             onClick={() => onEdit(item)}
             className="bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--cool-sky)] text-white border-none rounded-xl px-4 py-2.5 cursor-pointer text-sm font-bold shadow-[0_2px_8px_rgba(6,182,212,0.3)] transition-all duration-200 whitespace-nowrap"
