@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
-import type { FridgeItem } from './types';
+import type { FridgeItem, Recipe } from './types';
 import { AddItemForm } from './components/AddItemForm';
 import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
-import { RecipeList } from './components/RecipeList';
 import { EditItemModal } from './components/EditItemModal';
 import ReceiptUpload from './components/ReceiptUpload';
 import ReceiptStatus from './components/ReceiptStatus';
-import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
+import { RecipeGenerator } from './components/RecipeGenerator';
+import { GeneratedRecipeList } from './components/GeneratedRecipeList';
 import { getExpirationWarnings, calculateDaysUntilExpiration, isExpired } from './utils/dateUtils';
 import { Banner } from './components/banner';
 import { useAuthState, signInWithGoogle, getFridgeItemsRef, database, triggerTestExpirationEmail } from './utils/firebase';
@@ -21,6 +21,7 @@ function App() {
   const [editingItem, setEditingItem] = useState<FridgeItem | null>(null);
   const [uploadNotification, setUploadNotification] = useState<string | null>(null);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+  const [generatedRecipes, setGeneratedRecipes] = useState<Recipe[]>([]);
   const { user, isAuthenticated, isInitialLoading } = useAuthState();
   const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -147,6 +148,16 @@ function App() {
     }
   };
 
+  const handleRecipeGenerated = (recipe: Recipe) => {
+    setGeneratedRecipes(prev => [...prev, recipe]);
+    showNotification(`Recipe "${recipe.name}" generated successfully!`);
+  };
+
+  const handleDeleteGeneratedRecipe = (recipeId: string) => {
+    setGeneratedRecipes(prev => prev.filter(r => r.id !== recipeId));
+    showNotification('Recipe deleted');
+  };
+
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
 
   // Sort items by expiration date (soonest first), then alphabetically by name
@@ -165,8 +176,6 @@ function App() {
     });
   }, [items]);
 
-  const recipes = useMemo(() => getMockRecipes(), []);
-  const suggestedRecipes = useMemo(() => findMatchingRecipesRelaxed(items, recipes), [items, recipes]);
 
   return (
     <div className="app-container max-w-[1200px] mx-auto px-6 py-10 min-h-screen">
@@ -258,6 +267,12 @@ function App() {
               </div>
 
               <aside className="sticky top-6 space-y-6">
+                {/* Recipe Generator Section */}
+                <RecipeGenerator
+                  items={items}
+                  onRecipeGenerated={handleRecipeGenerated}
+                />
+
                 {/* Receipt Upload Section */}
                 <ReceiptUpload
                   onUploadComplete={handleUploadComplete}
@@ -267,29 +282,11 @@ function App() {
                 {/* Receipt Status Section */}
                 <ReceiptStatus />
 
-                {/* Recipe Ideas Section */}
-                <div className="bg-white/70 backdrop-blur-lg p-6 rounded-2xl border-2 border-(--border-light) shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
-                  <h3 className="m-0 mb-4 text-xl flex items-center gap-2">
-                    <span className="text-2xl">🍳</span>
-                    Recipe Ideas
-                  </h3>
-
-                  {suggestedRecipes.length === 0 ? (
-                    <div className="p-5 bg-gradient-to-br from-[#fef3c7] to-[#fde68a] rounded-xl text-[#92400e] text-center text-sm">
-                      <div className="text-3xl mb-2">👨‍🍳</div>
-                      Add ingredients to unlock recipe suggestions
-                    </div>
-                  ) : (
-                    <>
-                      {suggestedRecipes.length <= 2 && (
-                        <div className="mb-3 p-3 bg-(--card-tertiary) rounded-lg text-(--text-secondary) text-xs border-l-[3px] border-(--fresh-cyan)">
-                          Showing partial matches based on your ingredients
-                        </div>
-                      )}
-                      <RecipeList recipes={suggestedRecipes} />
-                    </>
-                  )}
-                </div>
+                {/* Generated Recipes Section */}
+                <GeneratedRecipeList
+                  recipes={generatedRecipes}
+                  onDelete={handleDeleteGeneratedRecipe}
+                />
 
                 <div className="p-6 bg-white/70 backdrop-blur-lg border-2 border-(--border-light) rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
                   <h4 className="mt-0 mb-4 text-base flex items-center gap-2">

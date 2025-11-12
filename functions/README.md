@@ -58,13 +58,23 @@ functions/
 3. Sends immediate email for current user's items
 4. Returns result status
 
+### 4. `generateRecipeFromIngredients`
+**Type:** Callable Function
+**Purpose:** Generate a recipe using OpenAI API based on selected ingredients
+
+**Flow:**
+1. User calls from frontend with array of ingredient names
+2. Validates authentication and input (max 10 ingredients)
+3. Calls OpenAI API to generate a recipe using all provided ingredients
+4. Returns recipe with name, ingredients, instructions (max 10 words per step), prep time, and servings
+
 ## Module Details
 
 ### Config
 - **firebase.js**: Initializes Firebase Admin SDK with project credentials
 
 ### Services
-- **openai.js**: Handles OpenAI Vision API calls for receipt processing
+- **openai.js**: Handles OpenAI Vision API calls for receipt processing and recipe generation
 - **email.js**: Manages EmailJS integration for sending notification emails
 - **storage.js**: Downloads and converts images to base64
 
@@ -75,6 +85,7 @@ functions/
 ### Handlers
 - **receiptProcessor.js**: Main logic for receipt OCR processing
 - **expirationNotifications.js**: Email notification logic and scheduling
+- **recipeGenerator.js**: Recipe generation logic using OpenAI API
 
 ## Development
 

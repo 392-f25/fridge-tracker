@@ -14,8 +14,10 @@ const {
   sendDailyExpirationEmails,
   sendTestExpirationEmail
 } = require('./handlers/expirationNotifications');
+const generateRecipeFromIngredients = require('./handlers/recipeGenerator');
 
 // Export cloud functions
 exports.processReceipt = processReceipt;
 exports.sendDailyExpirationEmails = sendDailyExpirationEmails;
 exports.sendTestExpirationEmail = sendTestExpirationEmail;
+exports.generateRecipeFromIngredients = generateRecipeFromIngredients;

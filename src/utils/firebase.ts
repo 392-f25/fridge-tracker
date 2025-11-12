@@ -33,8 +33,15 @@ const functionsInstance = getFunctions(firebase, 'us-central1');
 
 import { connectFunctionsEmulator } from 'firebase/functions';
 
-if (import.meta.env.DEV) {
-  connectFunctionsEmulator(functionsInstance, '127.0.0.1', 5001);
+// Only connect to emulator if explicitly enabled via environment variable
+// Set VITE_USE_FUNCTIONS_EMULATOR=true in your .env file to use local emulator
+if (import.meta.env.DEV && import.meta.env.VITE_USE_FUNCTIONS_EMULATOR === 'true') {
+  try {
+    connectFunctionsEmulator(functionsInstance, '127.0.0.1', 5001);
+    console.log('[Firebase] Connected to Functions emulator');
+  } catch (error) {
+    console.warn('[Firebase] Failed to connect to Functions emulator, using production:', error);
+  }
 }
 
 
@@ -47,9 +54,32 @@ export interface TestEmailResponse {
   reason?: 'NO_USER' | 'NO_EMAIL' | 'NO_ITEMS';
 }
 
+export interface GenerateRecipeRequest {
+  ingredients: string[];
+}
+
+export interface GenerateRecipeResponse {
+  id: string;
+  name: string;
+  ingredients: string[];
+  instructions: string[];
+  prepTime: number;
+  servings: number;
+  generatedAt: string;
+}
+
 export const triggerTestExpirationEmail = async (): Promise<TestEmailResponse> => {
   const callable = httpsCallable<void, TestEmailResponse>(functionsInstance, 'sendTestExpirationEmail');
   const result = await callable();
+  return result.data;
+};
+
+export const generateRecipeFromIngredients = async (ingredients: string[]): Promise<GenerateRecipeResponse> => {
+  const callable = httpsCallable<GenerateRecipeRequest, GenerateRecipeResponse>(
+    functionsInstance,
+    'generateRecipeFromIngredients'
+  );
+  const result = await callable({ ingredients });
   return result.data;
 };
 
