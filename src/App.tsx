@@ -4,14 +4,13 @@ import './App.css';
 import type { FridgeItem, Recipe } from './types';
 import { AddItemForm } from './components/AddItemForm';
 import { FridgeItemComponent } from './components/FridgeItem';
-import { ExpirationAlert } from './components/ExpirationAlert';
 import { EditItemModal } from './components/EditItemModal';
 import { ShoppingListModal } from './components/ShoppingListModal';
 import ReceiptUpload from './components/ReceiptUpload';
 import ReceiptStatus from './components/ReceiptStatus';
 import { RecipeGenerator } from './components/RecipeGenerator';
 import { GeneratedRecipeList } from './components/GeneratedRecipeList';
-import { getExpirationWarnings, calculateDaysUntilExpiration, isExpired } from './utils/dateUtils';
+import { calculateDaysUntilExpiration, isExpired } from './utils/dateUtils';
 import { Banner } from './components/banner';
 import { useAuthState, signInWithGoogle, getFridgeItemsRef, database, triggerTestExpirationEmail } from './utils/firebase';
 import { onValue, push, set, remove, update, ref } from 'firebase/database';
@@ -175,8 +174,6 @@ function App() {
     setShoppingList(shoppingList.filter(item => item.id !== id));
   };
 
-  const warnings = useMemo(() => getExpirationWarnings(items), [items]);
-
   // Sort items by expiration date (soonest first), then alphabetically by name
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
@@ -252,8 +249,6 @@ function App() {
           </div>
         ) : (
           <>
-            <ExpirationAlert warnings={warnings} />
-
             <AddItemForm onAdd={handleAdd} />
 
             <section className="grid grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] gap-8 items-start">
