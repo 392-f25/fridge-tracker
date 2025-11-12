@@ -25,6 +25,11 @@ describe('dateUtils', () => {
       const days = calculateDaysUntilExpiration(today);
       expect(days).toBe(0);
     });
+
+    it('should return Infinity for missing dates', () => {
+      const days = calculateDaysUntilExpiration(null);
+      expect(days).toBe(Number.POSITIVE_INFINITY);
+    });
   });
 
   describe('getExpirationSeverity', () => {
@@ -48,6 +53,10 @@ describe('dateUtils', () => {
       expect(getExpirationSeverity(8)).toBe('info');
       expect(getExpirationSeverity(30)).toBe('info');
     });
+
+    it('should return info when days are not finite', () => {
+      expect(getExpirationSeverity(Number.POSITIVE_INFINITY)).toBe('info');
+    });
   });
 
   describe('isExpired', () => {
@@ -64,6 +73,10 @@ describe('dateUtils', () => {
     it('should return false for today', () => {
       const today = new Date();
       expect(isExpired(today)).toBe(false);
+    });
+
+    it('should return false when no expiration date is provided', () => {
+      expect(isExpired(null)).toBe(false);
     });
   });
 
@@ -83,6 +96,10 @@ describe('dateUtils', () => {
     it('should return false for expired items', () => {
       const pastDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
       expect(isExpiringSoon(pastDate)).toBe(false);
+    });
+
+    it('should return false when no expiration date is provided', () => {
+      expect(isExpiringSoon(null)).toBe(false);
     });
   });
 });

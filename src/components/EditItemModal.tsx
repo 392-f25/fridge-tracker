@@ -19,13 +19,13 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
     quantity: item.quantity,
     unit: item.unit,
     purchaseDate: new Date(item.purchaseDate),
-    expirationDate: new Date(item.expirationDate),
+    expirationDate: item.expirationDate ? new Date(item.expirationDate) : null,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.expirationDate) {
-      alert('Please fill in all required fields');
+    if (!formData.name) {
+      alert('Please enter an item name');
       return;
     }
 
@@ -33,7 +33,7 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
       ...item,
       ...formData,
       purchaseDate: new Date(formData.purchaseDate),
-      expirationDate: new Date(formData.expirationDate),
+      expirationDate: formData.expirationDate ? new Date(formData.expirationDate) : null,
     });
   };
 
@@ -130,16 +130,18 @@ export const EditItemModal: React.FC<EditItemModalProps> = ({ item, onCancel, on
 
           <div>
             <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
-              Expiration Date *
+              Expiration Date <span className="font-normal text-[var(--text-secondary)]">(optional)</span>
             </label>
             <DatePicker
               selected={formData.expirationDate}
-              onChange={(date: Date | null) => setFormData({ ...formData, expirationDate: date || new Date() })}
+              onChange={(date: Date | null) => setFormData({ ...formData, expirationDate: date })}
               dateFormat="MMM d, yyyy"
               locale="en-US"
               className="input-date"
               portalId="react-datepicker-portal"
               wrapperClassName="date-wrapper"
+              placeholderText="Select a date or leave blank"
+              isClearable
             />
           </div>
         </div>

@@ -24,15 +24,15 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.expirationDate) {
-      alert('Please fill in all required fields');
+    if (!formData.name) {
+      alert('Please enter an item name');
       return;
     }
 
     onAdd({
       ...formData,
       purchaseDate: new Date(formData.purchaseDate),
-      expirationDate: new Date(formData.expirationDate as Date),
+      expirationDate: formData.expirationDate ? new Date(formData.expirationDate) : null,
     });
 
     setFormData({
@@ -150,7 +150,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
 
         <div>
           <label className="block mb-2 text-sm font-semibold text-[var(--text-primary)]">
-            Expiration Date *
+            Expiration Date <span className="font-normal text-[var(--text-secondary)]">(optional)</span>
           </label>
           <div>
             <DatePicker
@@ -161,6 +161,8 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
               className="input-date"
               portalId="react-datepicker-portal"
               wrapperClassName="date-wrapper"
+              placeholderText="Select a date or leave blank"
+              isClearable
             />
             {formData.expirationDate && (
               <div className="mt-2 text-xs text-[var(--text-secondary)] font-medium">

@@ -5,7 +5,7 @@ export interface FridgeItem {
   quantity: number;
   unit: string;
   purchaseDate: Date;
-  expirationDate: Date;
+  expirationDate: Date | null;
   imageUrl?: string;
 }
 

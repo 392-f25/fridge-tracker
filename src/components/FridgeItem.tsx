@@ -11,6 +11,7 @@ interface FridgeItemProps {
 
 export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete, onEdit, onAddToShoppingList }) => {
   const daysUntilExpiration = calculateDaysUntilExpiration(item.expirationDate);
+  const hasExpirationDate = Number.isFinite(daysUntilExpiration);
   const severity = getExpirationSeverity(daysUntilExpiration);
 
   const getSeverityClasses = () => {
@@ -42,6 +43,10 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete,
   const severityClasses = getSeverityClasses();
 
   const getExpirationText = () => {
+    if (!hasExpirationDate) {
+      return 'No expiration date set';
+    }
+
     if (daysUntilExpiration < 0) {
       return `Expired ${Math.abs(daysUntilExpiration)} day${Math.abs(daysUntilExpiration) !== 1 ? 's' : ''} ago`;
     } else if (daysUntilExpiration === 0) {
@@ -79,7 +84,7 @@ export const FridgeItemComponent: React.FC<FridgeItemProps> = ({ item, onDelete,
             <div className={`${severityClasses.text} font-bold mt-1.5 text-sm flex items-center gap-1.5`}>
               {severity === 'critical' && '🚨'}
               {severity === 'warning' && '⚠️'}
-              {severity === 'info' && '✅'}
+              {severity === 'info' && (hasExpirationDate ? '✅' : '📅')}
               {getExpirationText()}
             </div>
           </div>

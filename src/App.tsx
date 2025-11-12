@@ -66,7 +66,7 @@ function App() {
           quantity: item.quantity,
           unit: item.unit || 'unit',
           purchaseDate: new Date(item.addedDate),
-          expirationDate: new Date(item.expirationDate),
+          expirationDate: item.expirationDate ? new Date(item.expirationDate) : null,
           imageUrl: item.imageUrl,
           receiptId: item.receiptId
         }));
@@ -92,7 +92,7 @@ function App() {
       quantity: item.quantity,
       unit: item.unit,
       addedDate: item.purchaseDate.toISOString(),
-      expirationDate: item.expirationDate.toISOString(),
+      expirationDate: item.expirationDate ? item.expirationDate.toISOString() : null,
       imageUrl: item.imageUrl || null
     });
   };
@@ -109,7 +109,7 @@ function App() {
       category: updatedItem.category,
       quantity: updatedItem.quantity,
       unit: updatedItem.unit,
-      expirationDate: updatedItem.expirationDate.toISOString(),
+      expirationDate: updatedItem.expirationDate ? updatedItem.expirationDate.toISOString() : null,
       addedDate: updatedItem.purchaseDate.toISOString()
     });
     setEditingItem(null);
@@ -241,7 +241,7 @@ function App() {
               <p className="text-sm text-(--text-muted) mb-4">Sign in to save and manage your fridge items.</p>
               <button
                 onClick={signInWithGoogle}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+                className="w-full px-4 py-3 rounded-lg font-semibold text-white bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--fresh-mint)] shadow-[0_4px_12px_rgba(6,182,212,0.3)] hover:shadow-[0_6px_16px_rgba(6,182,212,0.4)] transition-all duration-200"
               >
                 Sign in with Google
               </button>
