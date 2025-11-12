@@ -7,6 +7,7 @@ import { FridgeItemComponent } from './components/FridgeItem';
 import { ExpirationAlert } from './components/ExpirationAlert';
 import { RecipeList } from './components/RecipeList';
 import { EditItemModal } from './components/EditItemModal';
+import { ShoppingListModal } from './components/ShoppingListModal';
 import ReceiptUpload from './components/ReceiptUpload';
 import ReceiptStatus from './components/ReceiptStatus';
 import { getMockRecipes, findMatchingRecipesRelaxed } from './utils/recipeUtils';
@@ -21,6 +22,8 @@ function App() {
   const [editingItem, setEditingItem] = useState<FridgeItem | null>(null);
   const [uploadNotification, setUploadNotification] = useState<string | null>(null);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+  const [shoppingList, setShoppingList] = useState<FridgeItem[]>([]);
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const { user, isAuthenticated, isInitialLoading } = useAuthState();
   const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -147,6 +150,20 @@ function App() {
     }
   };
 
+  const handleAddToShoppingList = (item: FridgeItem) => {
+    // Check if item is already in shopping list
+    if (!shoppingList.find(i => i.id === item.id)) {
+      setShoppingList([...shoppingList, item]);
+      showNotification(`${item.name} added to shopping list!`);
+    } else {
+      showNotification(`${item.name} is already in your shopping list.`);
+    }
+  };
+
+  const handleRemoveFromShoppingList = (id: string) => {
+    setShoppingList(shoppingList.filter(item => item.id !== id));
+  };
+
   const warnings = useMemo(() => getExpirationWarnings(items), [items]);
 
   // Sort items by expiration date (soonest first), then alphabetically by name
@@ -179,7 +196,7 @@ function App() {
         </div>
       )}
 
-      <header className="text-center mb-12 p-8 bg-white/70 backdrop-blur-lg rounded-3xl shadow-[0_8px_32px_rgba(6,182,212,0.1)] border-2 border-[rgba(165,243,252,0.3)]">
+      <header className="text-center mb-12 p-8 bg-white/70 backdrop-blur-lg rounded-3xl shadow-[0_8px_32px_rgba(6,182,212,0.1)] border-2 border-[rgba(165,243,252,0.3)] relative">
         <h1 className="m-0 mb-3 text-5xl tracking-tight">
           What2Eat
         </h1>
@@ -189,6 +206,21 @@ function App() {
         <div className="mt-2 text-[var(--text-muted)] text-sm">
           Track your fridge items and get recipe suggestions
         </div>
+        {isAuthenticated && (
+          <button
+            onClick={() => setIsShoppingListOpen(true)}
+            className="absolute top-6 right-6 bg-gradient-to-br from-[var(--fresh-cyan)] to-[var(--cool-sky)] text-white border-none rounded-xl px-5 py-2.5 cursor-pointer text-sm font-bold shadow-[0_2px_8px_rgba(6,182,212,0.3)] transition-all duration-200 flex items-center gap-2 hover:shadow-[0_4px_12px_rgba(6,182,212,0.4)]"
+            aria-label="Open shopping list"
+          >
+            <span className="text-lg">🛒</span>
+            Shopping List
+            {shoppingList.length > 0 && (
+              <span className="bg-white/30 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                {shoppingList.length}
+              </span>
+            )}
+          </button>
+        )}
       </header>
 
       <main>
@@ -251,6 +283,7 @@ function App() {
                         item={item}
                         onDelete={handleDelete}
                         onEdit={(selected) => setEditingItem(selected)}
+                        onAddToShoppingList={handleAddToShoppingList}
                       />
                     ))}
                   </div>
@@ -335,6 +368,13 @@ function App() {
                 item={editingItem}
                 onCancel={() => setEditingItem(null)}
                 onSave={handleUpdate}
+              />
+            )}
+            {isShoppingListOpen && (
+              <ShoppingListModal
+                items={shoppingList}
+                onClose={() => setIsShoppingListOpen(false)}
+                onRemove={handleRemoveFromShoppingList}
               />
             )}
           </>
