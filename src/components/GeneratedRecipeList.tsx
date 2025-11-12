@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Recipe } from '../types';
-import { RecipeList } from './RecipeList';
 
 interface GeneratedRecipeListProps {
   recipes: Recipe[];
@@ -86,4 +85,3 @@ export const GeneratedRecipeList: React.FC<GeneratedRecipeListProps> = ({ recipe
     </div>
   );
 };
-
