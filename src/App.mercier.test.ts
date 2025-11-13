@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import App from './App';
@@ -59,6 +59,10 @@ vi.mock('./utils/firebase', () => ({
 }));
 
 describe('App', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   describe('item sorting', () => {
     let currentItems: Record<string, any>;
     let onValueCallback: ((snapshot: any) => void) | null = null;
@@ -226,13 +230,22 @@ describe('App', () => {
       const user = userEvent.setup();
 
       await waitFor(() => {
-        expect(screen.getByText('Bread')).toBeInTheDocument();
-        expect(screen.getByText('Milk')).toBeInTheDocument();
+        const breadElements = screen.queryAllByText('Bread');
+        const milkElements = screen.queryAllByText('Milk');
+        expect(breadElements.length).toBeGreaterThan(0);
+        expect(milkElements.length).toBeGreaterThan(0);
       });
 
       // Initial order should be alphabetical: Bread, Milk
-      const initialElements = screen.getAllByText(/^(Bread|Milk)$/);
-      const initialOrder = initialElements.map(el => el.textContent);
+      // Get items from the items list container only
+      const itemsContainer = screen.getByText('Your Items').closest('div')?.parentElement;
+      const itemHeadings = itemsContainer 
+        ? Array.from(itemsContainer.querySelectorAll('h3')).filter(h => 
+            h.textContent === 'Bread' || h.textContent === 'Milk'
+          )
+        : [];
+      const initialOrder = itemHeadings.map(el => el.textContent);
+      expect(initialOrder.length).toBe(2);
       expect(initialOrder[0]).toBe('Bread');
       expect(initialOrder[1]).toBe('Milk');
 
@@ -259,12 +272,19 @@ describe('App', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Cheese')).toBeInTheDocument();
+        const cheeseElements = screen.queryAllByText('Cheese');
+        expect(cheeseElements.length).toBeGreaterThan(0);
       }, { timeout: 3000 });
 
       // Verify alphabetical sorting: Bread, Cheese, Milk
-      const allElements = screen.getAllByText(/^(Bread|Milk|Cheese)$/);
-      const finalOrder = allElements.map(el => el.textContent);
+      // Get items from the items list container only
+      const itemsContainer2 = screen.getByText('Your Items').closest('div')?.parentElement;
+      const itemHeadings2 = itemsContainer2 
+        ? Array.from(itemsContainer2.querySelectorAll('h3')).filter(h => 
+            h.textContent === 'Bread' || h.textContent === 'Milk' || h.textContent === 'Cheese'
+          )
+        : [];
+      const finalOrder = itemHeadings2.map(el => el.textContent);
       
       expect(finalOrder).toContain('Cheese');
       const breadIndex = finalOrder.indexOf('Bread');
@@ -301,12 +321,15 @@ describe('App', () => {
       const user = userEvent.setup();
 
       await waitFor(() => {
-        expect(screen.getByText('Milk')).toBeInTheDocument();
-        expect(screen.getByText('Bread')).toBeInTheDocument();
+        const milkElements = screen.queryAllByText('Milk');
+        const breadElements = screen.queryAllByText('Bread');
+        expect(milkElements.length).toBeGreaterThan(0);
+        expect(breadElements.length).toBeGreaterThan(0);
       });
 
       // Add a new item without expiration date
-      const addButton = screen.getByText('Add New Item');
+      const addButtons = screen.getAllByText('Add New Item');
+      const addButton = addButtons[0]; // Get the first one
       await user.click(addButton);
 
       const nameInput = screen.getByPlaceholderText(/e.g., Milk, Apples, Chicken/i);
@@ -317,12 +340,19 @@ describe('App', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Salt')).toBeInTheDocument();
+        const saltElements = screen.queryAllByText('Salt');
+        expect(saltElements.length).toBeGreaterThan(0);
       }, { timeout: 3000 });
 
       // Verify that Salt (no expiration) appears after items with expiration dates
-      const allElements = screen.getAllByText(/^(Milk|Bread|Salt)$/);
-      const finalOrder = allElements.map(el => el.textContent);
+      // Get items from the items list container only
+      const itemsContainer3 = screen.getByText('Your Items').closest('div')?.parentElement;
+      const itemHeadings3 = itemsContainer3 
+        ? Array.from(itemsContainer3.querySelectorAll('h3')).filter(h => 
+            h.textContent === 'Milk' || h.textContent === 'Bread' || h.textContent === 'Salt'
+          )
+        : [];
+      const finalOrder = itemHeadings3.map(el => el.textContent);
       
       expect(finalOrder).toContain('Salt');
       const saltIndex = finalOrder.indexOf('Salt');
@@ -484,19 +514,28 @@ describe('App', () => {
 
       // Wait for items from receipt to appear
       await waitFor(() => {
-        expect(screen.getByText('Milk')).toBeInTheDocument();
-        expect(screen.getByText('Bread')).toBeInTheDocument();
-        expect(screen.getByText('Eggs')).toBeInTheDocument();
+        const milkElements = screen.queryAllByText('Milk');
+        const breadElements = screen.queryAllByText('Bread');
+        const eggsElements = screen.queryAllByText('Eggs');
+        expect(milkElements.length).toBeGreaterThan(0);
+        expect(breadElements.length).toBeGreaterThan(0);
+        expect(eggsElements.length).toBeGreaterThan(0);
       }, { timeout: 3000 });
 
       // Verify that exactly the items from the receipt are present
-      const milkElement = screen.getByText('Milk');
-      const breadElement = screen.getByText('Bread');
-      const eggsElement = screen.getByText('Eggs');
+      // Get items from the items list container only
+      const itemsContainer4 = screen.getByText('Your Items').closest('div')?.parentElement;
+      const itemHeadings4 = itemsContainer4 
+        ? Array.from(itemsContainer4.querySelectorAll('h3')).filter(h => 
+            h.textContent === 'Milk' || h.textContent === 'Bread' || h.textContent === 'Eggs'
+          )
+        : [];
 
-      expect(milkElement).toBeInTheDocument();
-      expect(breadElement).toBeInTheDocument();
-      expect(eggsElement).toBeInTheDocument();
+      expect(itemHeadings4.length).toBe(3);
+      const itemNames = itemHeadings4.map(el => el.textContent);
+      expect(itemNames).toContain('Milk');
+      expect(itemNames).toContain('Bread');
+      expect(itemNames).toContain('Eggs');
 
       // Verify quantities match
       expect(screen.getByText(/1 L/i)).toBeInTheDocument(); // Milk quantity
@@ -504,8 +543,14 @@ describe('App', () => {
       expect(screen.getByText(/12 pcs/i)).toBeInTheDocument(); // Eggs quantity
 
       // Verify that no other items are present (only the 3 from receipt)
-      const allItemNames = screen.queryAllByText(/^(Milk|Bread|Eggs)$/);
-      expect(allItemNames.length).toBe(3);
+      // Count items from the items list container only
+      const itemsContainer5 = screen.getByText('Your Items').closest('div')?.parentElement;
+      const itemHeadings5 = itemsContainer5 
+        ? Array.from(itemsContainer5.querySelectorAll('h3')).filter(h => 
+            h.textContent === 'Milk' || h.textContent === 'Bread' || h.textContent === 'Eggs'
+          )
+        : [];
+      expect(itemHeadings5.length).toBe(3);
 
       // Verify receipt upload was called
       expect(mockUploadReceiptImage).toHaveBeenCalledWith(mockFile, mockUser.uid);
@@ -531,7 +576,8 @@ describe('App', () => {
 
       // Wait for existing item to appear
       await waitFor(() => {
-        expect(screen.getByText('Cheese')).toBeInTheDocument();
+        const cheeseElements = screen.queryAllByText('Cheese');
+        expect(cheeseElements.length).toBeGreaterThan(0);
       });
 
       // Upload receipt
@@ -549,20 +595,32 @@ describe('App', () => {
 
       // Wait for receipt items to be added
       await waitFor(() => {
-        expect(screen.getByText('Milk')).toBeInTheDocument();
-        expect(screen.getByText('Bread')).toBeInTheDocument();
-        expect(screen.getByText('Eggs')).toBeInTheDocument();
+        const milkElements = screen.queryAllByText('Milk');
+        const breadElements = screen.queryAllByText('Bread');
+        const eggsElements = screen.queryAllByText('Eggs');
+        expect(milkElements.length).toBeGreaterThan(0);
+        expect(breadElements.length).toBeGreaterThan(0);
+        expect(eggsElements.length).toBeGreaterThan(0);
       }, { timeout: 3000 });
 
       // Verify all items are present: existing Cheese + 3 from receipt
-      expect(screen.getByText('Cheese')).toBeInTheDocument();
-      expect(screen.getByText('Milk')).toBeInTheDocument();
-      expect(screen.getByText('Bread')).toBeInTheDocument();
-      expect(screen.getByText('Eggs')).toBeInTheDocument();
+      // Get items from the items list container only
+      const itemsContainer6 = screen.getByText('Your Items').closest('div')?.parentElement;
+      const itemHeadings6 = itemsContainer6 
+        ? Array.from(itemsContainer6.querySelectorAll('h3')).filter(h => 
+            h.textContent === 'Milk' || h.textContent === 'Bread' || 
+            h.textContent === 'Eggs' || h.textContent === 'Cheese'
+          )
+        : [];
+      
+      const itemNames = itemHeadings6.map(el => el.textContent);
+      expect(itemNames).toContain('Cheese');
+      expect(itemNames).toContain('Milk');
+      expect(itemNames).toContain('Bread');
+      expect(itemNames).toContain('Eggs');
 
       // Verify exactly 4 items total
-      const allItemNames = screen.queryAllByText(/^(Milk|Bread|Eggs|Cheese)$/);
-      expect(allItemNames.length).toBe(4);
+      expect(itemHeadings6.length).toBe(4);
     });
   });
 });
