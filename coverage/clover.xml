@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1762995103478" clover="3.2.0">
-  <project timestamp="1762995103479" name="All files">
-    <metrics statements="379" coveredstatements="212" conditionals="222" coveredconditionals="97" methods="129" coveredmethods="53" elements="730" coveredelements="362" complexity="0" loc="379" ncloc="379" packages="4" files="14" classes="14"/>
+<coverage generated="1763010227717" clover="3.2.0">
+  <project timestamp="1763010227717" name="All files">
+    <metrics statements="355" coveredstatements="199" conditionals="216" coveredconditionals="95" methods="112" coveredmethods="45" elements="683" coveredelements="339" complexity="0" loc="355" ncloc="355" packages="4" files="13" classes="13"/>
     <package name="src">
       <metrics statements="102" coveredstatements="50" conditionals="74" coveredconditionals="31" methods="36" coveredmethods="14"/>
-      <file name="App.css" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\App.css">
+      <file name="App.css" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/App.css">
         <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       </file>
-      <file name="App.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\App.tsx">
+      <file name="App.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/App.tsx">
         <metrics statements="102" coveredstatements="50" conditionals="74" coveredconditionals="31" methods="36" coveredmethods="14"/>
         <line num="19" count="15" type="stmt"/>
         <line num="20" count="15" type="stmt"/>
@@ -115,7 +115,7 @@
     </package>
     <package name="src.components">
       <metrics statements="218" coveredstatements="121" conditionals="121" coveredconditionals="47" methods="67" coveredmethods="26"/>
-      <file name="AddItemForm.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\AddItemForm.tsx">
+      <file name="AddItemForm.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/AddItemForm.tsx">
         <metrics statements="25" coveredstatements="17" conditionals="12" coveredconditionals="7" methods="12" coveredmethods="6"/>
         <line num="12" count="1" type="stmt"/>
         <line num="13" count="37" type="stmt"/>
@@ -143,7 +143,7 @@
         <line num="158" count="0" type="stmt"/>
         <line num="187" count="0" type="stmt"/>
       </file>
-      <file name="EditItemModal.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\EditItemModal.tsx">
+      <file name="EditItemModal.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/EditItemModal.tsx">
         <metrics statements="18" coveredstatements="1" conditionals="8" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="13" count="1" type="stmt"/>
         <line num="14" count="0" type="stmt"/>
@@ -164,34 +164,34 @@
         <line num="122" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="137" count="0" type="stmt"/>
       </file>
-      <file name="FridgeItem.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\FridgeItem.tsx">
+      <file name="FridgeItem.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/FridgeItem.tsx">
         <metrics statements="24" coveredstatements="18" conditionals="21" coveredconditionals="16" methods="6" coveredmethods="3"/>
-        <line num="12" count="2" type="stmt"/>
-        <line num="13" count="28" type="stmt"/>
-        <line num="14" count="28" type="stmt"/>
-        <line num="15" count="28" type="stmt"/>
-        <line num="17" count="28" type="stmt"/>
-        <line num="18" count="28" type="cond" truecount="3" falsecount="0"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="29" type="stmt"/>
+        <line num="14" count="29" type="stmt"/>
+        <line num="15" count="29" type="stmt"/>
+        <line num="17" count="29" type="stmt"/>
+        <line num="18" count="29" type="cond" truecount="3" falsecount="0"/>
         <line num="20" count="5" type="stmt"/>
         <line num="27" count="13" type="stmt"/>
-        <line num="34" count="10" type="stmt"/>
-        <line num="43" count="28" type="stmt"/>
-        <line num="45" count="28" type="stmt"/>
-        <line num="46" count="28" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="11" type="stmt"/>
+        <line num="43" count="29" type="stmt"/>
+        <line num="45" count="29" type="stmt"/>
+        <line num="46" count="29" type="cond" truecount="2" falsecount="0"/>
         <line num="47" count="1" type="stmt"/>
-        <line num="50" count="27" type="cond" truecount="1" falsecount="1"/>
+        <line num="50" count="28" type="cond" truecount="1" falsecount="1"/>
         <line num="51" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="52" count="27" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="28" type="cond" truecount="1" falsecount="1"/>
         <line num="53" count="0" type="stmt"/>
-        <line num="54" count="27" type="cond" truecount="1" falsecount="1"/>
+        <line num="54" count="28" type="cond" truecount="1" falsecount="1"/>
         <line num="55" count="0" type="stmt"/>
-        <line num="57" count="27" type="stmt"/>
-        <line num="61" count="28" type="stmt"/>
+        <line num="57" count="28" type="stmt"/>
+        <line num="61" count="29" type="stmt"/>
         <line num="95" count="0" type="stmt"/>
         <line num="102" count="0" type="stmt"/>
         <line num="108" count="0" type="stmt"/>
       </file>
-      <file name="GeneratedRecipeList.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\GeneratedRecipeList.tsx">
+      <file name="GeneratedRecipeList.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/GeneratedRecipeList.tsx">
         <metrics statements="8" coveredstatements="3" conditionals="4" coveredconditionals="1" methods="5" coveredmethods="1"/>
         <line num="9" count="1" type="stmt"/>
         <line num="10" count="15" type="cond" truecount="1" falsecount="1"/>
@@ -202,7 +202,7 @@
         <line num="60" count="0" type="stmt"/>
         <line num="76" count="0" type="stmt"/>
       </file>
-      <file name="ReceiptStatus.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\ReceiptStatus.tsx">
+      <file name="ReceiptStatus.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/ReceiptStatus.tsx">
         <metrics statements="30" coveredstatements="26" conditionals="18" coveredconditionals="6" methods="14" coveredmethods="9"/>
         <line num="15" count="15" type="stmt"/>
         <line num="16" count="15" type="stmt"/>
@@ -235,7 +235,7 @@
         <line num="74" count="0" type="stmt"/>
         <line num="79" count="0" type="stmt"/>
       </file>
-      <file name="ReceiptUpload.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\ReceiptUpload.tsx">
+      <file name="ReceiptUpload.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/ReceiptUpload.tsx">
         <metrics statements="59" coveredstatements="42" conditionals="18" coveredconditionals="10" methods="7" coveredmethods="5"/>
         <line num="15" count="25" type="stmt"/>
         <line num="16" count="25" type="stmt"/>
@@ -297,7 +297,7 @@
         <line num="97" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="100" count="25" type="stmt"/>
       </file>
-      <file name="RecipeGenerator.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\RecipeGenerator.tsx">
+      <file name="RecipeGenerator.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/RecipeGenerator.tsx">
         <metrics statements="43" coveredstatements="10" conditionals="30" coveredconditionals="5" methods="7" coveredmethods="1"/>
         <line num="10" count="1" type="stmt"/>
         <line num="11" count="15" type="stmt"/>
@@ -343,7 +343,7 @@
         <line num="140" count="0" type="stmt"/>
         <line num="141" count="0" type="stmt"/>
       </file>
-      <file name="ShoppingListModal.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\ShoppingListModal.tsx">
+      <file name="ShoppingListModal.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/ShoppingListModal.tsx">
         <metrics statements="8" coveredstatements="1" conditionals="6" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="10" count="1" type="stmt"/>
         <line num="11" count="0" type="stmt"/>
@@ -354,7 +354,7 @@
         <line num="59" count="0" type="stmt"/>
         <line num="78" count="0" type="stmt"/>
       </file>
-      <file name="banner.tsx" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\components\banner.tsx">
+      <file name="banner.tsx" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/components/banner.tsx">
         <metrics statements="3" coveredstatements="3" conditionals="4" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="15" type="stmt"/>
@@ -363,76 +363,49 @@
     </package>
     <package name="src.constants">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="itemOptions.ts" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\constants\itemOptions.ts">
+      <file name="itemOptions.ts" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/constants/itemOptions.ts">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
       </file>
     </package>
     <package name="src.utils">
-      <metrics statements="57" coveredstatements="39" conditionals="27" coveredconditionals="19" methods="26" coveredmethods="13"/>
-      <file name="dateUtils.ts" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\utils\dateUtils.ts">
+      <metrics statements="33" coveredstatements="26" conditionals="21" coveredconditionals="17" methods="9" coveredmethods="5"/>
+      <file name="dateUtils.ts" path="/Users/tasinski/Desktop/HW/CS-392/fridge-tracker/src/utils/dateUtils.ts">
         <metrics statements="33" coveredstatements="26" conditionals="21" coveredconditionals="17" methods="9" coveredmethods="5"/>
-        <line num="3" count="5" type="stmt"/>
-        <line num="4" count="173" type="cond" truecount="2" falsecount="0"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="4" count="164" type="cond" truecount="2" falsecount="0"/>
         <line num="5" count="3" type="stmt"/>
-        <line num="8" count="170" type="stmt"/>
-        <line num="9" count="170" type="stmt"/>
-        <line num="11" count="170" type="stmt"/>
-        <line num="12" count="170" type="cond" truecount="1" falsecount="1"/>
+        <line num="8" count="161" type="stmt"/>
+        <line num="9" count="161" type="stmt"/>
+        <line num="11" count="161" type="stmt"/>
+        <line num="12" count="161" type="cond" truecount="1" falsecount="1"/>
         <line num="13" count="0" type="stmt"/>
-        <line num="15" count="170" type="stmt"/>
-        <line num="17" count="170" type="stmt"/>
-        <line num="18" count="170" type="stmt"/>
-        <line num="21" count="5" type="stmt"/>
-        <line num="22" count="38" type="cond" truecount="2" falsecount="0"/>
-        <line num="23" count="36" type="cond" truecount="2" falsecount="0"/>
-        <line num="24" count="34" type="cond" truecount="2" falsecount="0"/>
-        <line num="25" count="26" type="cond" truecount="2" falsecount="0"/>
-        <line num="26" count="11" type="stmt"/>
-        <line num="29" count="5" type="stmt"/>
+        <line num="15" count="161" type="stmt"/>
+        <line num="17" count="161" type="stmt"/>
+        <line num="18" count="161" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
+        <line num="22" count="39" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="37" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="35" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="12" type="stmt"/>
+        <line num="29" count="4" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
         <line num="34" count="0" type="stmt"/>
         <line num="42" count="0" type="cond" truecount="0" falsecount="3"/>
         <line num="45" count="0" type="stmt"/>
-        <line num="48" count="5" type="stmt"/>
-        <line num="49" count="28" type="stmt"/>
-        <line num="56" count="5" type="stmt"/>
-        <line num="57" count="85" type="cond" truecount="2" falsecount="0"/>
-        <line num="58" count="81" type="stmt"/>
-        <line num="61" count="5" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="49" count="29" type="stmt"/>
+        <line num="56" count="4" type="stmt"/>
+        <line num="57" count="79" type="cond" truecount="2" falsecount="0"/>
+        <line num="58" count="75" type="stmt"/>
+        <line num="61" count="4" type="stmt"/>
         <line num="62" count="5" type="cond" truecount="2" falsecount="0"/>
         <line num="63" count="4" type="stmt"/>
         <line num="64" count="4" type="cond" truecount="2" falsecount="0"/>
-      </file>
-      <file name="recipeUtils.ts" path="C:\Users\galex_cxlntn4\CS392\fridge-tracker\src\utils\recipeUtils.ts">
-        <metrics statements="24" coveredstatements="13" conditionals="6" coveredconditionals="2" methods="17" coveredmethods="8"/>
-        <line num="3" count="1" type="stmt"/>
-        <line num="4" count="15" type="stmt"/>
-        <line num="6" count="6" type="stmt"/>
-        <line num="8" count="15" type="stmt"/>
-        <line num="9" count="45" type="stmt"/>
-        <line num="10" count="84" type="cond" truecount="2" falsecount="0"/>
-        <line num="15" count="15" type="stmt"/>
-        <line num="17" count="15" type="stmt"/>
-        <line num="23" count="15" type="stmt"/>
-        <line num="24" count="4" type="stmt"/>
-        <line num="25" count="8" type="stmt"/>
-        <line num="29" count="1" type="stmt"/>
-        <line num="30" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="35" count="0" type="stmt"/>
-        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="41" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="50" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="52" count="0" type="stmt"/>
-        <line num="55" count="1" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
       </file>
     </package>
   </project>
