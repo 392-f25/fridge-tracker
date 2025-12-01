@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, within, cleanup } from '@testing-library/react';
+import { render, fireEvent, within, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ShoppingListModal } from './ShoppingListModal';
 
@@ -24,6 +24,8 @@ type Item = {
   quantity: number;
   unit: string;
   category: string;
+  purchaseDate: Date;
+  expirationDate: Date | null;
 };
 
 describe('ShoppingListModal', () => {
@@ -45,8 +47,8 @@ describe('ShoppingListModal', () => {
 
   it('renders items and shows count badge', async () => {
     const items: Item[] = [
-      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy' },
-      { id: 'b2', name: 'Eggs', quantity: 12, unit: 'pcs', category: 'Dairy' },
+      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy', purchaseDate: new Date(), expirationDate: null },
+      { id: 'b2', name: 'Eggs', quantity: 12, unit: 'pcs', category: 'Dairy', purchaseDate: new Date(), expirationDate: null },
     ];
     const onClose = vi.fn();
     const onRemove = vi.fn();
@@ -56,7 +58,7 @@ describe('ShoppingListModal', () => {
     // Title and badge (scope to this container)
     const header = container.querySelector('h3');
     expect(header?.textContent).toContain('Shopping List');
-    const badge = within(header as Element).getByText(String(items.length));
+    const badge = within(header as HTMLElement).getByText(String(items.length));
     expect(badge).toBeInTheDocument();
 
     // Items are rendered
@@ -66,7 +68,7 @@ describe('ShoppingListModal', () => {
 
   it('calls onRemove with the item id when Remove button is clicked', async () => {
     const items: Item[] = [
-      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy' },
+      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy', purchaseDate: new Date(), expirationDate: null },
     ];
     const onClose = vi.fn();
     const onRemove = vi.fn();
@@ -76,7 +78,7 @@ describe('ShoppingListModal', () => {
     // Find the card that contains 'Milk' and click the Remove button within that card
     const milkCard = Array.from(container.querySelectorAll('div')).find((el) => el.textContent?.includes('Milk'));
     expect(milkCard).toBeTruthy();
-    const removeButton = within(milkCard as Element).getByRole('button', { name: /Remove/i });
+    const removeButton = within(milkCard as HTMLElement).getByRole('button', { name: /Remove/i });
     await userEvent.click(removeButton);
 
     expect(onRemove).toHaveBeenCalledWith('a1');
@@ -84,7 +86,7 @@ describe('ShoppingListModal', () => {
 
   it('calls onClose when the backdrop (overlay) is clicked but not when modal content is clicked', async () => {
     const items: Item[] = [
-      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy' },
+      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy', purchaseDate: new Date(), expirationDate: null },
     ];
     const onClose = vi.fn();
     const onRemove = vi.fn();
@@ -109,16 +111,17 @@ describe('ShoppingListModal', () => {
 
   it('close button calls onClose', async () => {
     const items: Item[] = [
-      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy' },
+      { id: 'a1', name: 'Milk', quantity: 1, unit: 'carton', category: 'Dairy', purchaseDate: new Date(), expirationDate: null },
     ];
     const onClose = vi.fn();
     const onRemove = vi.fn();
 
     const { container } = render(<ShoppingListModal items={items} onClose={onClose} onRemove={onRemove} />);
 
-    // Close button is inside header
+    // Close button is a sibling of the header inside the header container
     const header = container.querySelector('h3');
-    const closeButton = header ? within(header).getByRole('button', { name: /Close|✕/i }) : null;
+    const headerContainer = header?.parentElement;
+    const closeButton = headerContainer ? within(headerContainer as HTMLElement).getByRole('button', { name: /Close|✕/i }) : null;
     expect(closeButton).toBeTruthy();
     if (closeButton) {
       await userEvent.click(closeButton);
